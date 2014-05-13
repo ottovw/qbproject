@@ -1,15 +1,11 @@
 package org.qbproject.api.mongo
 
-import play.api.libs.json._
-import org.qbproject.schema._
 import org.qbproject.api.schema._
-import QBSchema._
+import org.qbproject.api.schema.QBSchema._
 import org.qbproject.schema.json.mapper.JsTypeMapperBuilder
 import org.qbproject.api.mongo.MongoSchemaExtensions._
-import play.api.libs.json.JsObject
-import play.api.libs.json.JsString
+import play.api.libs.json._
 import scala.Some
-import play.api.libs.json.JsNumber
 
 class MongoTransformer(schema: QBClass) {
 
@@ -19,9 +15,9 @@ class MongoTransformer(schema: QBClass) {
 
   private def updateSchema(schema: QBClass): QBClass = {
     schema
-      .map[QBObjectId](attr => cls("$oid" -> objectId))
-      .map[QBDateTime](attr => cls("$date" -> dateTime))
-      .map[QBPosixTime](attr => cls("$date" -> posixTime))
+      .map[QBObjectId](attr => qbClass("$oid" -> objectId))
+      .map[QBDateTime](attr => qbClass("$date" -> qbDateTime))
+      .map[QBPosixTime](attr => qbClass("$date" -> qbPosixTime))
   }
 
   private def readMappingBuilderFor(schema: QBClass): JsTypeMapperBuilder = {

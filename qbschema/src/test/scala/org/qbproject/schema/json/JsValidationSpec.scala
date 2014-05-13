@@ -17,9 +17,9 @@ object JsValidationSpec extends Specification {
   "QBValidator" should {
 
     "should accept correct JSON" in {
-      val schema = cls(
-        "o" -> cls(
-          "s" -> string(minLength(5))))
+      val schema = qbClass(
+        "o" -> qbClass(
+          "s" -> qbString(minLength(5))))
       val instance = Json.obj(
         "o" -> Json.obj(
           "s" -> "hallo"))
@@ -27,9 +27,9 @@ object JsValidationSpec extends Specification {
     }
 
     "should decline invalid JSON" in {
-      val schema = cls(
-        "o" -> cls(
-          "s" -> string(minLength(5))))
+      val schema = qbClass(
+        "o" -> qbClass(
+          "s" -> qbString(minLength(5))))
       val instance = Json.obj(
         "o" -> Json.obj(
           "s" -> "hall"))
@@ -37,9 +37,9 @@ object JsValidationSpec extends Specification {
     }
 
     "should emit same JSON as read if no transformation is present" in {
-      val schema = cls(
-        "o" -> string,
-        "e" -> number)
+      val schema = qbClass(
+        "o" -> qbString,
+        "e" -> qbNumber)
       val instance = Json.obj(
         "o" -> "o",
         "e" -> 23)
@@ -48,10 +48,10 @@ object JsValidationSpec extends Specification {
     }
 
     "test schema adapter" in {
-      val schema = cls(
-        "o" -> string,
-        "e" -> number,
-        "d" -> default(number, JsNumber(42)))
+      val schema = qbClass(
+        "o" -> qbString,
+        "e" -> qbNumber,
+        "d" -> default(qbNumber, JsNumber(42)))
       val instance = Json.obj(
         "o" -> "o",
         "e" -> 23)
@@ -60,10 +60,10 @@ object JsValidationSpec extends Specification {
     }
 
     "test optional base type without default" in {
-      val schema = cls(
-        "o" -> string,
-        "e" -> number,
-        "d" -> optional(number))
+      val schema = qbClass(
+        "o" -> qbString,
+        "e" -> qbNumber,
+        "d" -> optional(qbNumber))
       val instance = Json.obj(
         "o" -> "o",
         "e" -> 23)
@@ -72,10 +72,10 @@ object JsValidationSpec extends Specification {
     }
 
     "test optional object without default " in {
-      val schema = cls(
-        "o" -> string,
-        "e" -> number,
-        "d" -> optional(cls("i" -> string)))
+      val schema = qbClass(
+        "o" -> qbString,
+        "e" -> qbNumber,
+        "d" -> optional(qbClass("i" -> qbString)))
       val instance = Json.obj(
         "o" -> "o",
         "e" -> 23)
@@ -84,10 +84,10 @@ object JsValidationSpec extends Specification {
     }
 
     "test nested optional object without default " in {
-      val schema = cls(
-        "o" -> string,
-        "e" -> number,
-        "d" -> optional(cls("i" -> optional(string))))
+      val schema = qbClass(
+        "o" -> qbString,
+        "e" -> qbNumber,
+        "d" -> optional(qbClass("i" -> optional(qbString))))
       val instance = Json.obj(
         "o" -> "o",
         "e" -> 23)
@@ -96,10 +96,10 @@ object JsValidationSpec extends Specification {
     }
 
     "test optional without default" in {
-      val schema = cls(
-        "s" -> string,
-        "n" -> number,
-        "o" -> optional(number))
+      val schema = qbClass(
+        "s" -> qbString,
+        "n" -> qbNumber,
+        "o" -> optional(qbNumber))
       val instance = Json.obj(
         "s" -> "o",
         "n" -> 23)
@@ -108,10 +108,10 @@ object JsValidationSpec extends Specification {
     }
 
     "test optional without default should not yield JsUndefined" in {
-      val schema = cls(
-        "s" -> string,
-        "n" -> number,
-        "o" -> optional(number))
+      val schema = qbClass(
+        "s" -> qbString,
+        "n" -> qbNumber,
+        "o" -> optional(qbNumber))
       val instance = Json.obj(
         "s" -> "o",
         "n" -> 23)
@@ -120,10 +120,10 @@ object JsValidationSpec extends Specification {
     }
 
     "test optional with already set value" in {
-      val schema = cls(
-        "o" -> string,
-        "e" -> number,
-        "d" -> optional(number, JsNumber(11)))
+      val schema = qbClass(
+        "o" -> qbString,
+        "e" -> qbNumber,
+        "d" -> optional(qbNumber, JsNumber(11)))
 
       val instance = Json.obj(
         "o" -> "o",
@@ -134,10 +134,10 @@ object JsValidationSpec extends Specification {
     }
 
     "test optional with default" in {
-      val schema = cls(
-        "o" -> string,
-        "e" -> number,
-        "d" -> optional(number, JsNumber(11)))
+      val schema = qbClass(
+        "o" -> qbString,
+        "e" -> qbNumber,
+        "d" -> optional(qbNumber, JsNumber(11)))
       val instance = Json.obj(
         "o" -> "o",
         "e" -> 23)
@@ -147,11 +147,11 @@ object JsValidationSpec extends Specification {
     }
 
     "test optional nested in an optional object where parent is not set" in {
-      val schema = cls(
-        "o" -> string,
-        "e" -> number,
-        "d" -> optional(cls(
-          "x" -> optional(string)
+      val schema = qbClass(
+        "o" -> qbString,
+        "e" -> qbNumber,
+        "d" -> optional(qbClass(
+          "x" -> optional(qbString)
         )))
       val instance = Json.obj(
         "o" -> "o",
@@ -161,25 +161,25 @@ object JsValidationSpec extends Specification {
     }
 
     "test optional nested in an optional object where child is not set" in {
-      val schema = cls(
-        "o" -> string,
-        "e" -> number,
-        "d" -> optional(cls(
-          "x" -> optional(string)
+      val schema = qbClass(
+        "o" -> qbString,
+        "e" -> qbNumber,
+        "d" -> optional(qbClass(
+          "x" -> optional(qbString)
         )))
 
       val instance = Json.obj(
         "o" -> "o",
         "e" -> 23,
-        "d" -> cls())
+        "d" -> qbClass())
 
       QBValidator.validate(schema)(instance).asOpt must beSome
     }
 
     "test optional when value is null" in {
-      val schema = cls(
-        "o" -> string,
-        "e" -> optional(number)
+      val schema = qbClass(
+        "o" -> qbString,
+        "e" -> optional(qbNumber)
       )
 
       val instance = JsObject(Seq(
@@ -192,9 +192,9 @@ object JsValidationSpec extends Specification {
     }
 
     "test optional when value is JsUndefined" in {
-      val schema = cls(
-        "o" -> string,
-        "e" -> optional(number)
+      val schema = qbClass(
+        "o" -> qbString,
+        "e" -> optional(qbNumber)
       )
 
       val instance = JsObject(Seq(
@@ -206,8 +206,8 @@ object JsValidationSpec extends Specification {
     }
 
     "test multipleOf with valid integer" in {
-      val schema = cls(
-        "i" -> integer(multipleOf(3)))
+      val schema = qbClass(
+        "i" -> qbInteger(multipleOf(3)))
       val instance = Json.obj(
         "i" -> 9)
       val result = QBValidator.validate(schema)(instance)
@@ -215,8 +215,8 @@ object JsValidationSpec extends Specification {
     }
 
     "test multipleOf with invalid integer" in {
-      val schema = cls(
-        "i" -> integer(multipleOf(3)))
+      val schema = qbClass(
+        "i" -> qbInteger(multipleOf(3)))
       val instance = Json.obj(
         "i" -> 10)
       val result = QBValidator.validate(schema)(instance)
@@ -224,8 +224,8 @@ object JsValidationSpec extends Specification {
     }
 
     "test parsing a boolean" in {
-      val schema = cls(
-        "bool" -> bool)
+      val schema = qbClass(
+        "bool" -> qbBoolean)
       val input = Json.obj(
         "bool" -> true)
 
@@ -235,26 +235,26 @@ object JsValidationSpec extends Specification {
 
     "test oneOf object validation" in {
 
-      val schema = cls(
+      val schema = qbClass(
         "i" -> QBSchema.oneOf(
-          cls("x" -> number),
-          cls("x" -> string)))
+          qbClass("x" -> qbNumber),
+          qbClass("x" -> qbString)))
 
       val result = QBValidator.validate(schema)(Json.obj("i" -> Json.obj("x" -> "wat")))
       result.asOpt must beSome
     }
 
     "test oneOf object violation" in {
-      val o = cls(
-        "i" -> QBSchema.oneOf(cls("x" -> number), cls("x" -> string)))
+      val o = qbClass(
+        "i" -> QBSchema.oneOf(qbClass("x" -> qbNumber), qbClass("x" -> qbString)))
       QBValidator.validate(o)(Json.obj("j" -> Json.obj("xx" -> "wat"))).asOpt must beNone
     }
 
     "test recursive definition" in {
-      lazy val recSchema: QBClass = cls(
-        "author" -> string,
-        "message" -> string,
-        "replies" -> arr(recSchema))
+      lazy val recSchema: QBClass = qbClass(
+        "author" -> qbString,
+        "message" -> qbString,
+        "replies" -> qbList(recSchema))
       val data = Json.obj(
         "author" -> "Dude",
         "message" -> "Hallo?",
@@ -267,9 +267,9 @@ object JsValidationSpec extends Specification {
     }
 
     "test valid minProperties" in {
-      val schema = cls(List(
-        "i" -> integer,
-        "j" -> integer),
+      val schema = qbClass(List(
+        "i" -> qbInteger,
+        "j" -> qbInteger),
         minProperties(1))
       val instance = Json.obj(
         "i" -> 9,
@@ -279,9 +279,9 @@ object JsValidationSpec extends Specification {
     }
 
     "test minProperties violation" in {
-      val schema = cls(List(
-        "i" -> integer,
-        "j" -> integer),
+      val schema = qbClass(List(
+        "i" -> qbInteger,
+        "j" -> qbInteger),
         minProperties(3))
       val instance = Json.obj(
         "i" -> 9,
@@ -291,9 +291,9 @@ object JsValidationSpec extends Specification {
     }
 
     "test valid maxProperties" in {
-      val schema = cls(List(
-        "i" -> integer,
-        "j" -> integer),
+      val schema = qbClass(List(
+        "i" -> qbInteger,
+        "j" -> qbInteger),
         maxProperties(3))
       val instance = Json.obj(
         "i" -> 9,
@@ -303,9 +303,9 @@ object JsValidationSpec extends Specification {
     }
 
     "test maxProperties violation" in {
-      val schema = cls(List(
-        "i" -> integer,
-        "j" -> integer),
+      val schema = qbClass(List(
+        "i" -> qbInteger,
+        "j" -> qbInteger),
         maxProperties(1))
       val instance = Json.obj(
         "i" -> 9,
@@ -315,9 +315,9 @@ object JsValidationSpec extends Specification {
     }
 
     "test tolerant numbers conversion" in {
-      val schema = cls(List(
-        "i" -> integer,
-        "j" -> number))
+      val schema = qbClass(List(
+        "i" -> qbInteger,
+        "j" -> qbNumber))
       val instance = Json.obj(
         "i" -> 9,
         "j" -> "10")
@@ -325,9 +325,9 @@ object JsValidationSpec extends Specification {
     }
 
     "test tolerant integer conversion" in {
-      val schema = cls(List(
-        "i" -> integer,
-        "j" -> integer))
+      val schema = qbClass(List(
+        "i" -> qbInteger,
+        "j" -> qbInteger))
       val instance = Json.obj(
         "i" -> 9,
         "j" -> "10")
@@ -335,9 +335,9 @@ object JsValidationSpec extends Specification {
     }
 
     "test error case when tolerant number conversion gets non valid number" in {
-      val schema = cls(List(
-        "i" -> integer,
-        "j" -> number))
+      val schema = qbClass(List(
+        "i" -> qbInteger,
+        "j" -> qbNumber))
       val instance = Json.obj(
         "i" -> 9,
         "j" -> "10aaaa")
@@ -345,9 +345,9 @@ object JsValidationSpec extends Specification {
     }
 
     "test tolerant boolean conversion false" in {
-      val schema = cls(List(
-        "i" -> integer,
-        "j" -> bool))
+      val schema = qbClass(List(
+        "i" -> qbInteger,
+        "j" -> qbBoolean))
       val instance = Json.obj(
         "i" -> 9,
         "j" -> "fALSE")
@@ -357,9 +357,9 @@ object JsValidationSpec extends Specification {
     }
 
     "test tolerant boolean conversion with true" in {
-      val schema = cls(List(
-        "i" -> integer,
-        "j" -> bool))
+      val schema = qbClass(List(
+        "i" -> qbInteger,
+        "j" -> qbBoolean))
       val instance = Json.obj(
         "i" -> 9,
         "j" -> "true")
@@ -367,9 +367,9 @@ object JsValidationSpec extends Specification {
     }
 
     "test error case when tolerant boolean conversion gets non valid boolean" in {
-      val schema = cls(List(
-        "i" -> integer,
-        "j" -> bool))
+      val schema = qbClass(List(
+        "i" -> qbInteger,
+        "j" -> qbBoolean))
       val instance = Json.obj(
         "i" -> 9,
         "j" -> "MaybeTrue")
@@ -377,10 +377,10 @@ object JsValidationSpec extends Specification {
     }
 
     "test partial validation" in {
-      val schema = cls(
-        "multipleOf3" -> integer(multipleOf(3)),
-        "num" -> number,
-        "str" -> string)
+      val schema = qbClass(
+        "multipleOf3" -> qbInteger(multipleOf(3)),
+        "num" -> qbNumber,
+        "str" -> qbString)
       val instance = Json.obj(
         "multipleOf3" -> 9)
       val result = QBPartialValidator.validate(schema)(instance)

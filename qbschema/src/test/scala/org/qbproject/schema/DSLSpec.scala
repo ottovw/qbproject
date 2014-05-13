@@ -1,18 +1,18 @@
 package org.qbproject.schema
 
 import org.specs2.mutable.Specification
-import org.qbproject.schema._
 import org.qbproject.api.schema.{QBValidator, QBSchema}
-import QBSchema._
 import play.api.libs.json._
 import play.api.libs.json.Json.toJsFieldJsValueWrapper
 import scala.math.BigDecimal.long2bigDecimal
 
 object DSLSpec extends Specification {
 
+  import QBSchema._
+
   "DSL" should {
 
-    val schema = cls("time" -> posixTime)
+    val schema = qbClass("time" -> qbPosixTime)
 
     "have a posix time type" in {
       val currentTime = System.currentTimeMillis() / 1000L

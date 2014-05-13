@@ -68,11 +68,11 @@ object QBCollectionValidationSpec {
   val date = new DateTime().toString()
   val time = System.currentTimeMillis() / 1000L
 
-  val sampleSchema = cls(
+  val sampleSchema = qbClass(
     "id" -> objectId,
-    "d" -> dateTime,
-    "e" -> posixTime,
-    "i" -> cls("x" -> objectId))
+    "d" -> qbDateTime,
+    "e" -> qbPosixTime,
+    "i" -> qbClass("x" -> objectId))
 
   val sampleJson = Json.obj(
     "id" -> id,

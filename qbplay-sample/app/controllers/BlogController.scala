@@ -17,13 +17,13 @@ import org.qbproject.api.mongo.MongoSchemaExtensions._
 
 object BlogController extends Controller with MongoController with QBCrudController {
 
-  val blogSchema = cls(
+  val blogSchema = qbClass(
     "id" -> objectId,
-    "title" -> string,
-    "body" -> string,
-    "tags" -> arr(string),
-    "author" -> string,
-    "creationDate" -> dateTime)
+    "title" -> qbString,
+    "body" -> qbString,
+    "tags" -> qbList(qbString),
+    "author" -> qbString,
+    "creationDate" -> qbDateTime)
 
   //
   lazy val collection = new QBMongoCollection("blog")(db) with QBCollectionValidation {

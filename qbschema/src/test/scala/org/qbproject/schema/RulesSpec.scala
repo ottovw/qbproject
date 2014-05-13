@@ -13,8 +13,8 @@ class RulesSpec extends Specification {
   "String Rules" should {
 
     "nonEmpty" in {
-      nonEmptyText.isValid(JsString("a")) must beTrue
-      nonEmptyText.isValid(JsString("")) must beFalse
+      qbNonEmptyText.isValid(JsString("a")) must beTrue
+      qbNonEmptyText.isValid(JsString("")) must beFalse
     }
 
     "minlength" in {
@@ -30,13 +30,13 @@ class RulesSpec extends Specification {
     }
 
     "enum" in {
-      enum("eddy", "otto", "dude").isValid(JsString("dude")) must beTrue
-      enum("eddy", "otto", "dude").isValid(JsString("honk")) must beFalse
+      qbEnum("eddy", "otto", "dude").isValid(JsString("dude")) must beTrue
+      qbEnum("eddy", "otto", "dude").isValid(JsString("honk")) must beFalse
     }
 
     "email (pattern)" in {
-      email.isValid(JsString("otto@m-cube.de")) must beTrue
-      email.isValid(JsString("dude@@dude")) must beFalse
+      qbEmail.isValid(JsString("otto@m-cube.de")) must beTrue
+      qbEmail.isValid(JsString("dude@@dude")) must beFalse
     }
 
   }
@@ -58,8 +58,8 @@ class RulesSpec extends Specification {
   "Boolean Rules" should {
 
     "validate JsBoolean correctly" in {
-      bool.isValid(JsBoolean(true)) must beTrue
-      bool.isValid(JsBoolean(false)) must beTrue
+      qbBoolean.isValid(JsBoolean(true)) must beTrue
+      qbBoolean.isValid(JsBoolean(false)) must beTrue
     }
 
   }
@@ -67,11 +67,11 @@ class RulesSpec extends Specification {
   "Uniqueness Rules" should {
 
     "check return true if the list only contains distinct elements" in {
-      arr(number, unique).isValid(JsArray(Seq(JsNumber(1), JsNumber(2), JsNumber(3)))) must beTrue
+      qbList(qbNumber, unique).isValid(JsArray(Seq(JsNumber(1), JsNumber(2), JsNumber(3)))) must beTrue
     }
 
     "check return false if a list contains duplicates" in {
-      arr(number, unique).isValid(JsArray(Seq(JsNumber(1), JsNumber(2), JsNumber(2), JsNumber(3)))) must beFalse
+      qbList(qbNumber, unique).isValid(JsArray(Seq(JsNumber(1), JsNumber(2), JsNumber(2), JsNumber(3)))) must beFalse
     }
   }
  

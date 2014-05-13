@@ -8,18 +8,18 @@ object SampleSchema {
 
   import QBSchema._
 
-  val project = cls(
-    "id" -> string,
-    "name" -> string(minLength(10), maxLength(20)),
-    "title" -> default(string, JsString("hallo")),
-    "bugs" -> arr(string))
+  val project = qbClass(
+    "id" -> qbString,
+    "name" -> qbString(minLength(10), maxLength(20)),
+    "title" -> default(qbString, JsString("hallo")),
+    "bugs" -> qbList(qbString))
 
-  val person = cls(
-    "id" -> string,
-    "name" -> string,
-    "email" -> string,
-    "age" -> number,
-    "tags" -> arr(string)
+  val person = qbClass(
+    "id" -> qbString,
+    "name" -> qbString,
+    "email" -> qbString,
+    "age" -> qbNumber,
+    "tags" -> qbList(qbString)
   )
 
   //  val state = Choice("open", "closed", "assigned")
@@ -30,24 +30,24 @@ object SampleSchema {
   //    "replies" -> arr(comment)
   //  )
 
-  val bug = cls(
-    "id" -> string,
-    "title" -> string(minLength(10)),
+  val bug = qbClass(
+    "id" -> qbString,
+    "title" -> qbString(minLength(10)),
     //    "state" -> state,
-    "reporter" -> string,
-    "assignee" -> string,
-    "comments" -> cls(
-      "author" -> string,
-      "message" -> string),
-    "dueDate" -> number,
-    "version" -> cls(
-      "start" -> number,
-      "end" -> number))
+    "reporter" -> qbString,
+    "assignee" -> qbString,
+    "comments" -> qbClass(
+      "author" -> qbString,
+      "message" -> qbString),
+    "dueDate" -> qbNumber,
+    "version" -> qbClass(
+      "start" -> qbNumber,
+      "end" -> qbNumber))
 
-  val max = cls(
-    "name" -> string,
-    "age" -> number(min(10)),
-    "brother" -> string
+  val max = qbClass(
+    "name" -> qbString,
+    "age" -> qbNumber(min(10)),
+    "brother" -> qbString
   ) - "name"
 
 }

@@ -150,7 +150,7 @@ trait QBNumber extends QBPrimitiveType[JsNumber] with QBBaseType  {
   val rules: Set[ValidationRule[JsNumber]]
   override def toString = "number"
 }
-case class QBNumberClass(rules: Set[ValidationRule[JsNumber]] = Set.empty) extends QBNumber
+case class QBNumberImpl(rules: Set[ValidationRule[JsNumber]] = Set.empty) extends QBNumber
 
 /**
  * Integer
@@ -211,5 +211,5 @@ class QBDateTimeImpl(rules: Set[ValidationRule[JsString]]) extends QBStringImpl(
 trait QBPosixTime extends QBType {
   override def toString = "posixTime"
 }
-class QBPosixTimeImpl(rules: Set[ValidationRule[JsNumber]]) extends QBNumberClass(rules) with QBPosixTime
+class QBPosixTimeImpl(rules: Set[ValidationRule[JsNumber]]) extends QBNumberImpl(rules) with QBPosixTime
 
