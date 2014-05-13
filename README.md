@@ -1,5 +1,3 @@
-https://travis-ci.org/qb-project/qb-code.svg?branch=master
-
 qb
 ====
 
