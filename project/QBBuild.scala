@@ -27,7 +27,8 @@ object QBBuild extends Build {
     EclipseKeys.projectFlavor := EclipseProjectFlavor.Scala,
     EclipseKeys.skipParents in ThisBuild := false,
     EclipseKeys.executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16),
-    EclipseKeys.withSource := true
+    EclipseKeys.withSource := true,
+    bintray.Keys.bintrayOrganization in bintray.Keys.bintray := Some("qbproject")
   )
 
   lazy val root = Project("qbroot", file("."),
@@ -45,9 +46,9 @@ object QBBuild extends Build {
       retrieveManaged := true,
       libraryDependencies ++= Seq(
         "com.typesafe.play" %% "play-json"         % "2.2.3",
+        "com.mandubian"     %% "play-json-zipper"  % "1.1",
         "org.specs2"        %% "specs2"            % "2.3.7"  % "test",
-        "org.scalaz"        %% "scalaz-core"       % "7.0.5",
-        "com.mandubian"     %% "play-json-zipper"  % "1.1"
+        "org.scalaz"        %% "scalaz-core"       % "7.0.5"
       )
     )
 
@@ -58,11 +59,10 @@ object QBBuild extends Build {
       retrieveManaged := true,
       libraryDependencies ++= Seq(
         "com.typesafe.play" %% "play"                % "2.2.3",
-        "org.reactivemongo" %% "play2-reactivemongo" % "0.10.2",
-        "eu.teamon"         %% "play-navigator"      % "0.5.0",
-        "org.specs2"        %% "specs2" % "2.3.7"    % "test",
         "com.mandubian"     %% "play-json-zipper"    % "1.1",
-        "com.github.axel22" %% "scalameter"          % "0.4"
+        "com.github.axel22" %% "scalameter"          % "0.4",
+        "org.reactivemongo" %% "play2-reactivemongo" % "0.10.2",
+        "org.specs2"        %% "specs2" % "2.3.7"    % "test"
       ),
       testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
       Keys.fork in Test := false,
@@ -76,7 +76,7 @@ object QBBuild extends Build {
       retrieveManaged := true,
       libraryDependencies ++= Seq(
         "com.typesafe.play" %% "play-json"           % "2.2.3",
-        "net.sf.opencsv"    % "opencsv"              % "2.1",
+        "net.sf.opencsv"    %  "opencsv"              % "2.1",
         "org.specs2"        %% "specs2" % "2.3.7"    % "test",
         "org.scalaz"        %% "scalaz-core"         % "7.0.5"
     ),
