@@ -36,7 +36,7 @@ object QBBuild extends Build {
       unmanagedSourceDirectories in Compile <+= baseDirectory(new File(_, "src/main/scala")),
       unmanagedSourceDirectories in Test    <+= baseDirectory(new File(_, "src/test/scala")),
       retrieveManaged := true
-    ))
+    )).aggregate(schemaProject, playProject, csvProject)
 
   lazy val schemaProject = Project("qbschema", file("qbschema"))
     .settings(buildSettings: _*)
