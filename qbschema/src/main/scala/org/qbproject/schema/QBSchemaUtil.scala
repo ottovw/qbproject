@@ -32,9 +32,9 @@ object QBSchemaUtil {
   def prettyPrint(qbType: QBType, indent: Int = 0): String = qbType match {
     case obj: QBClass => "{\n" +
       obj.attributes.map { field =>
-        List.fill(indent + 2)(" ").mkString + field.name + ": " +
+        " " * (indent + 2)  + field.name + ": " +
           prettyPrint(field.qbType, indent + 2) + "\n"}.mkString +
-      List.fill(indent)(" ").mkString + "}"
+        " " * indent + "}"
     case arr: QBArray => "[" + prettyPrint(arr.items, indent) + "]"
     case q => q.toString
   }
