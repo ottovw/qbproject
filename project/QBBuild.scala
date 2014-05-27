@@ -69,7 +69,7 @@ object QBBuild extends Build {
       Keys.parallelExecution in Test := false
     ).dependsOn(schemaProject)
 
-  lazy val csvProject = Project("qb-csv", file("qb-csv"))
+  lazy val csvProject = Project("qbcsv", file("qbcsv"))
     .settings(buildSettings: _*)
     .settings(
       resolvers ++= QBRepositories,
