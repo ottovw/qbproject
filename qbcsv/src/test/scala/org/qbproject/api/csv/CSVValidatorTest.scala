@@ -84,6 +84,68 @@ class CSVValidatorTest extends Specification {
         "sex" -> "f"))
     }
 
+    "read basic csv with missing optional and without fallback value" in {
+      val testSchema = qbClass(
+        "id" -> qbString,
+        "name" -> qbString,
+        "email" -> qbString,
+        "age" -> readOnly(qbNumber),
+        "tags" -> qbList(qbString),
+        "sex" -> optional(qbString))
+      val testData = """id;name;email;age;tags[0];tags[1];sex
+        1;Eddy;eddy@qb.org;28;yolo;quake
+        2;Otto;otto@qb.org;26;ginger"""
+      val result = parse(testSchema, testData)
+      result.size must beEqualTo(2)
+      QBValidator.validateJsValue(testSchema)(result(0).get.get).get must beEqualTo(Json.obj(
+        "id" -> "1",
+        "name" -> "Eddy",
+        "email" -> "eddy@qb.org",
+        "age" -> 28,
+        "tags" -> Json.arr("yolo", "quake")))
+    }
+
+    "read basic csv with missing optional enum and with fallback value" in {
+      val testSchema = qbClass(
+        "id" -> qbString,
+        "name" -> qbString,
+        "email" -> qbString,
+        "age" -> readOnly(qbNumber),
+        "tags" -> qbList(qbString),
+        "sex" -> optional(qbEnum("foo", "bar", "quux"), JsString("bar")))
+      val testData = """id;name;email;age;tags[0];tags[1];sex
+        1;Eddy;eddy@qb.org;28;yolo;quake
+        2;Otto;otto@qb.org;26;ginger"""
+      val result = parse(testSchema, testData)
+      result.size must beEqualTo(2)
+      QBValidator.validateJsValue(testSchema)(result(0).get.get).get must beEqualTo(Json.obj(
+        "id" -> "1",
+        "name" -> "Eddy",
+        "email" -> "eddy@qb.org",
+        "age" -> 28,
+        "tags" -> Json.arr("yolo", "quake"),
+        "sex" -> "bar"))
+    }
+
+    "read basic csv with missing optional enum and without fallback value" in {
+      val testSchema = qbClass(
+        "id" -> qbString,
+        "enum" -> optional(qbEnum("foo", "bar", "quux")))
+
+      val testData = """id;enum
+        1;
+        2;foo"""
+      val result = parse(testSchema, testData)
+      result.size must beEqualTo(2)
+      QBValidator.validateJsValue(testSchema)(result(0).get.get).get must beEqualTo(Json.obj(
+        "id" -> "1"
+      ))
+      QBValidator.validateJsValue(testSchema)(result(1).get.get).get must beEqualTo(Json.obj(
+        "id" -> "2",
+        "enum" -> "foo"
+      ))
+    }
+//
     "read basic csv with present optional" in {
       val testSchema = qbClass(
         "id" -> qbString,
