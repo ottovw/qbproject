@@ -47,4 +47,4 @@ We will release a tutorial very soon. Stay tuned!
 ### Build
 
 We use [Travis CI](http://travis-ci.org/) to build qb:
-[![Build Status](https://travis-ci.org/qb-project/qb-code.svg?branch=master)](http://travis-ci.org/qb-project/qbproject)
+[![Build Status](https://travis-ci.org/qb-project/qbproject.svg?branch=master)](http://travis-ci.org/qb-project/qbproject)
