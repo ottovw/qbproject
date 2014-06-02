@@ -30,7 +30,7 @@ object QBBuild extends Build {
       EclipseKeys.skipParents in ThisBuild := false,
       EclipseKeys.executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16),
       EclipseKeys.withSource := true,
-      parallelExecution in ThisBuild := false,
+      parallelExecution in Test := false,
       bintray.Keys.bintrayOrganization in bintray.Keys.bintray := Some("qbproject")
     )
 
