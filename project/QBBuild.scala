@@ -19,6 +19,7 @@ object QBBuild extends Build {
   val buildSettings = Project.defaultSettings ++
     Seq(bintrayPublishSettings:_*) ++
     Seq(ScoverageSbtPlugin.instrumentSettings:_*) ++
+    Seq(CoverallsPlugin.coverallsSettings:_*) ++
     Seq(
     organization := "org.qbproject",
     version := QBVersion,

@@ -19,3 +19,5 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.0")
 addSbtPlugin("me.lessis" % "bintray-sbt" % "0.1.1")
 
 addSbtPlugin("org.scoverage" %% "sbt-scoverage" % "0.98.2")
+
+addSbtPlugin("com.sksamuel.scoverage" %% "sbt-coveralls" % "0.0.5")
