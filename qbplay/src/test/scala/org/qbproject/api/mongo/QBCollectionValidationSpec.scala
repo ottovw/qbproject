@@ -4,13 +4,10 @@ import play.api.libs.json._
 import reactivemongo.bson.BSONObjectID
 import org.specs2.mutable.Specification
 import org.joda.time.DateTime
-import org.qbproject.schema._
-import org.qbproject.api.schema.{QBClass, QBSchema}
-import QBSchema._
+import org.qbproject.api.schema.QBSchema._
 import org.qbproject.api.mongo.MongoSchemaExtensions._
-
-import scala.concurrent.{ Await, Future }
-import org.qbproject.api.mongo.{QBMongoCollection, QBCollectionValidation, MongoTransformer}
+import org.qbproject.api.schema.QBClass
+import scala.concurrent.{ Future }
 
 class QBCollectionValidationSpec extends Specification {
   import QBCollectionValidationSpec._
