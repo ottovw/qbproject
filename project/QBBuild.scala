@@ -30,7 +30,8 @@ object QBBuild extends Build {
       EclipseKeys.skipParents in ThisBuild := false,
       EclipseKeys.executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16),
       EclipseKeys.withSource := true,
-      parallelExecution in Test := false,
+      Keys.fork in Test := false,
+      Keys.parallelExecution in Test := false,
       bintray.Keys.bintrayOrganization in bintray.Keys.bintray := Some("qbproject")
     )
 
@@ -67,9 +68,7 @@ object QBBuild extends Build {
         "org.reactivemongo" %% "play2-reactivemongo" % "0.10.2",
         "org.specs2"        %% "specs2" % "2.3.7"    % "test"
       ),
-      testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
-      Keys.fork in Test := false,
-      Keys.parallelExecution in Test := false
+      testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework")
     ).dependsOn(schemaProject)
 
   lazy val csvProject = Project("qbcsv", file("qbcsv"))
@@ -82,9 +81,7 @@ object QBBuild extends Build {
         "net.sf.opencsv"    %  "opencsv"              % "2.1",
         "org.specs2"        %% "specs2" % "2.3.7"    % "test",
         "org.scalaz"        %% "scalaz-core"         % "7.0.5"
-    ),
-      Keys.fork in Test := false,
-      Keys.parallelExecution in Test := false
+      )
     ).dependsOn(schemaProject)
 
   lazy val playSampleProject = play.Project("qbplay-sample", QBVersion, path = file("qbplay-sample"))
@@ -96,8 +93,7 @@ object QBBuild extends Build {
         "org.specs2" %% "specs2"      % "1.13" % "test",
         "junit"      %  "junit"       % "4.8"  % "test",
         "org.scalaz" %% "scalaz-core" % "7.0.5"
-      ),
-      Keys.fork in Test := false
+      )
     )
     .dependsOn(schemaProject,playProject)
     .aggregate(schemaProject,playProject)
