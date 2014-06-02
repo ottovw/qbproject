@@ -11,10 +11,6 @@ class RouterSpec extends Specification {
 
     val prefix = "/my/prefix"
 
-    "bla" in {
-      true must beTrue
-    }
-
     "prefix route" in {
       val route = SimpleRoute0("GET", "a", null)
       val copy = route.copy(path = "hey/" + route.path)

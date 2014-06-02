@@ -5,6 +5,7 @@
 .cache/
 .history/
 .lib/
+.target/
 dist/*
 target/
 lib_managed/
@@ -19,6 +20,8 @@ project/plugins/project/
 .classpath
 .project
 .metadata
+.cache
+
 
 # IntelliJ
 .idea
