@@ -1,4 +1,4 @@
-qb
+qb Project
 ====
 
 ### Introduction
@@ -48,3 +48,5 @@ We will release a tutorial very soon. Stay tuned!
 
 We use [Travis CI](http://travis-ci.org/) to build qb:
 [![Build Status](https://travis-ci.org/qb-project/qbproject.svg?branch=master)](http://travis-ci.org/qb-project/qbproject)
+
+[![Coverage Status](https://coveralls.io/repos/qb-project/qbproject/badge.png?branch=master)](https://coveralls.io/r/qb-project/qbproject?branch=master)
