@@ -21,16 +21,16 @@ object QBBuild extends Build {
     Seq(ScoverageSbtPlugin.instrumentSettings:_*) ++
     Seq(CoverallsPlugin.coverallsSettings:_*) ++
     Seq(
-    organization := "org.qbproject",
-    version := QBVersion,
-    scalaVersion := "2.10.2",
-    licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-    EclipseKeys.projectFlavor := EclipseProjectFlavor.Scala,
-    EclipseKeys.skipParents in ThisBuild := false,
-    EclipseKeys.executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16),
-    EclipseKeys.withSource := true,
-    bintray.Keys.bintrayOrganization in bintray.Keys.bintray := Some("qbproject")
-  )
+      organization := "org.qbproject",
+      version := QBVersion,
+      scalaVersion := "2.10.2",
+      licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+      EclipseKeys.projectFlavor := EclipseProjectFlavor.Scala,
+      EclipseKeys.skipParents in ThisBuild := false,
+      EclipseKeys.executionEnvironment := Some(EclipseExecutionEnvironment.JavaSE16),
+      EclipseKeys.withSource := true,
+      bintray.Keys.bintrayOrganization in bintray.Keys.bintray := Some("qbproject")
+    )
 
   lazy val root = Project("qbroot", file("."),
     settings =  buildSettings
