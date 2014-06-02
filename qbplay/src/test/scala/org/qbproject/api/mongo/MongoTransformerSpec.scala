@@ -1,10 +1,8 @@
 package org.qbproject.api.mongo
 
 import org.specs2.mutable.Specification
-import play.api.libs.json.{ JsString, Json, JsSuccess, JsNumber }
-import org.qbproject.api.mongo.{MongoTransformer, MongoSchemaExtensions}
+import play.api.libs.json.{ JsString, Json }
 import MongoSchemaExtensions._
-import org.qbproject.schema._
 import org.qbproject.api.schema.{QBClass, QBSchema}
 import QBSchema._
 import reactivemongo.bson.BSONObjectID
