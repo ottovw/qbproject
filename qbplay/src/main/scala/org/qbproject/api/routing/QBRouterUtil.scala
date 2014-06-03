@@ -22,10 +22,40 @@ object QBRouterUtil {
   }
 
   /**
+   * Joins parts of a URL path to one path.
+   *
+   * @param pathParts
+   */
+  def joinPaths(pathParts: String*): String = {
+    pathParts.map(_.trim).filterNot(_ == "")
+      .foldLeft("")((url, next) => {
+        val priorHasSlash = url.endsWith("/")
+        val nextHasSlash = next.startsWith("/")
+
+        (priorHasSlash, nextHasSlash) match {
+          case (true, false) => url + next
+          case (false, true) => url + next
+          case (true, true) => url + next.substring(1)
+          case (false, false) => url + "/" + next
+        }
+      })
+  }
+
+  /**
    * Prefixes all given path with the given prefix.
    */
   object namespace {
-    def apply(prefix: String)(routes: => List[QBRoute]): List[QBRoute] = routes.map(r => r.copy(path = prefix + r.path))
+
+    def apply(prefix: String)(routes: => List[QBRoute]): List[QBRoute] = {
+      routes.map(copyRoute(prefix, _))
+    }
+
+    def apply(prefix: String, route: => QBRoute): QBRoute = copyRoute(prefix, route)
+
+    private def copyRoute(prefix: String, route: QBRoute): QBRoute = {
+      route.copy(path = QBRouterUtil.joinPaths("/", prefix, route.path))
+    }
+
   }
 
 }
