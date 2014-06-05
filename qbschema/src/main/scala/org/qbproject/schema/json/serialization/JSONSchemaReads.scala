@@ -38,7 +38,7 @@ trait JSONSchemaReads {
         val minRule = opts._1.map(MinRule(_, isMinExclusive))
         val maxRule = opts._2.map(MaxRule(_, isMaxExclusive))
         val multipleOf = opts._5.map(MultipleOfRule)
-        QBNumberClass(Set(minRule, maxRule, multipleOf).filterNot(_.isEmpty).map(_.get))
+        QBNumberImpl(Set(minRule, maxRule, multipleOf).filterNot(_.isEmpty).map(_.get))
       })
   }
 

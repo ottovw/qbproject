@@ -47,17 +47,17 @@ trait BugController extends Controller with MongoController with QBAPIController
   }
 
   def getCommentSchema = Action {
-    val schema = cls(
+    val schema = qbClass(
       "id" -> objectId,
       "companyId" -> objectId, // (endpoint für autocomplete)
       "bookingId" -> optional(objectId), // (endpoint für autocomplete)
-      "ratingStatus" -> enum("pending", "approved", "rejected"),
-      "rating" -> integer(range(1, 5)),
-      "ratingOf" -> integer(range(5, 5)), // readonly? 
-      "comment" -> string(maxLength(2000)),
-      "firstName" -> string(length(1,50)),
-      "lastName" -> string(length(1,50)),
-      "ratingDate" -> dateTime
+      "ratingStatus" -> qbEnum("pending", "approved", "rejected"),
+      "rating" -> qbInteger(range(1, 5)),
+      "ratingOf" -> qbInteger(range(5, 5)), // readonly?
+      "comment" -> qbString(maxLength(2000)),
+      "firstName" -> qbString(length(1,50)),
+      "lastName" -> qbString(length(1,50)),
+      "ratingDate" -> qbDateTime
     )
     Ok(Json.toJson(schema))
   }

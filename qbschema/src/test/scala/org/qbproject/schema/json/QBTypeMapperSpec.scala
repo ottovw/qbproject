@@ -19,11 +19,11 @@ object QBTypeMapperSpec extends Specification {
 
   "Mapping over types" should {
 
-    val schema = cls(
-      "o" -> string,
-      "x" -> arr(cls(
-        "d" -> integer,
-        "e" -> integer)))
+    val schema = qbClass(
+      "o" -> qbString,
+      "x" -> qbList(qbClass(
+        "d" -> qbInteger,
+        "e" -> qbInteger)))
 
     val instance = Json.obj(
       "o" -> "foo",
@@ -32,14 +32,14 @@ object QBTypeMapperSpec extends Specification {
         "e" -> 5)))
 
     "should find all integers" in {
-      val schema = cls("s" -> string, "i" -> integer)
+      val schema = qbClass("s" -> qbString, "i" -> qbInteger)
       val instance = Json.obj("s" -> "foo", "i" -> 3)
       val matchedPaths = QBTypeMapper[QBInteger]().matchedPaths(schema)(instance)
       matchedPaths.get.size must beEqualTo(1)
     }
 
     "find all, also nested, integers" in {
-      val schema = cls("o" -> string, "i" -> integer, "x" -> cls("e" -> integer))
+      val schema = qbClass("o" -> qbString, "i" -> qbInteger, "x" -> qbClass("e" -> qbInteger))
       val instance = Json.obj("o" -> "foo", "i" -> 3, "x" -> Json.obj("e" -> 4))
       val matchedPaths = QBTypeMapper[QBInteger]().matchedPaths(schema)(instance)
       matchedPaths.get.size must beEqualTo(2)
@@ -48,7 +48,7 @@ object QBTypeMapperSpec extends Specification {
     }
 
     "find integers in an array" in {
-      val schema = cls("o" -> string, "x" -> arr(cls("d" -> integer, "e" -> integer)))
+      val schema = qbClass("o" -> qbString, "x" -> qbList(qbClass("d" -> qbInteger, "e" -> qbInteger)))
       val instance = Json.obj("o" -> "foo", "x" -> List(Json.obj("d" -> 4, "e" -> 5)))
       val matchedPaths = QBTypeMapper[QBInteger]().matchedPaths(schema)(instance)
       matchedPaths.get.size must beEqualTo(2)
@@ -56,11 +56,11 @@ object QBTypeMapperSpec extends Specification {
 
     "find and increment integers in an array" in {
 
-      val schema = cls(
-        "o" -> string,
-        "x" -> arr(
-          cls("d" -> integer,
-            "e" -> integer)))
+      val schema = qbClass(
+        "o" -> qbString,
+        "x" -> qbList(
+          qbClass("d" -> qbInteger,
+            "e" -> qbInteger)))
 
       val instance = Json.obj(
         "o" -> "foo",
@@ -88,11 +88,11 @@ object QBTypeMapperSpec extends Specification {
 
     "find and increment integers in an array via builder" in {
       val now = new Date().toString
-      val schema = cls(
-        "o" -> string,
-        "x" -> arr(cls(
-          "d" -> dateTime,
-          "e" -> integer)))
+      val schema = qbClass(
+        "o" -> qbString,
+        "x" -> qbList(qbClass(
+          "d" -> qbDateTime,
+          "e" -> qbInteger)))
 
       val instance = Json.obj(
         "o" -> "foo",
@@ -101,7 +101,7 @@ object QBTypeMapperSpec extends Specification {
           "e" -> 5)))
 
       val updatedSchema = schema
-        .map[QBDateTime](attr => cls("$date" -> dateTime))
+        .map[QBDateTime](attr => qbClass("$date" -> qbDateTime))
 
       val builder = new JsTypeMapperBuilder(updatedSchema).map[QBClass] {
         case o: JsObject if o.fieldSet.exists(_._1 == "$date") => o.fieldSet.find(_._1 == "$date").get._2
@@ -117,14 +117,14 @@ object QBTypeMapperSpec extends Specification {
 
       val now = new Date().toString
 
-      val schema = cls(
-        "x" -> arr(dateTime))
+      val schema = qbClass(
+        "x" -> qbList(qbDateTime))
 
       val instance = Json.obj(
         "x" -> List(Json.obj("$date" -> now)))
 
       val updatedSchema = schema
-        .map[QBDateTime](qbType => cls("$date" -> dateTime))
+        .map[QBDateTime](qbType => qbClass("$date" -> qbDateTime))
 
       val builder = new JsTypeMapperBuilder(updatedSchema).map[QBClass] {
         case o: JsObject if o.fieldSet.exists(_._1 == "$date") => o.fieldSet.find(_._1 == "$date").get._2
@@ -168,9 +168,9 @@ object QBTypeMapperSpec extends Specification {
       val dateString = date.toString()
       val dateMillis = date.getMillis
 
-      val sampleSchema = cls(
-        "d" -> dateTime, 
-        "e" -> posixTime)
+      val sampleSchema = qbClass(
+        "d" -> qbDateTime,
+        "e" -> qbPosixTime)
 
       val sampleJson = Json.obj(
         "d" -> dateString, 
@@ -197,9 +197,9 @@ object QBTypeMapperSpec extends Specification {
       val date = new DateTime(2000,1,1,1,1)
       val dateMillis = date.getMillis
 
-      val sampleSchema = cls(
-        "e" -> posixTime,
-        "n" -> number)
+      val sampleSchema = qbClass(
+        "e" -> qbPosixTime,
+        "n" -> qbNumber)
 
       val sampleJson = Json.obj(
         "e" -> dateMillis,

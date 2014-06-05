@@ -13,7 +13,7 @@ object SchemaExtensionSpec extends Specification {
 
   "Schema extension test" should {
     "allow to map extension types" in {
-      val schema = cls("img" -> image)
+      val schema = qbClass("img" -> image)
       val instance = Json.obj("img" -> "otto.png")
 
       QBTypeMapper[QBImage]().map(schema)(instance) {

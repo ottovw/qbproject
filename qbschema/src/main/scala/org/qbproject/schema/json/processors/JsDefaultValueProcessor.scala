@@ -7,7 +7,7 @@ import org.qbproject.api.schema._
 import org.qbproject.api.schema.QBBooleanImpl
 import org.qbproject.api.schema.QBIntegerImpl
 import org.qbproject.api.schema.QBDefaultAnnotation
-import org.qbproject.api.schema.QBNumberClass
+import org.qbproject.api.schema.QBNumberImpl
 
 trait JsDefaultValueProcessor extends JsValueProcessor[JsValue] { self: Visitor[JsValue] =>
 
@@ -21,7 +21,7 @@ trait JsDefaultValueProcessor extends JsValueProcessor[JsValue] { self: Visitor[
     val numberConverter = new JsStringToNumberTypeProcessor()
     val booleanConverter = new JsStringToBooleanTypeProcessor()
     Map(
-      classOf[QBNumberClass] -> numberConverter,
+      classOf[QBNumberImpl] -> numberConverter,
       classOf[QBIntegerImpl] -> numberConverter,
       classOf[QBBooleanImpl] -> booleanConverter
     )

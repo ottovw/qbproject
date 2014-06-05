@@ -261,5 +261,5 @@ object DateTimeRule extends FormatRule[JsString] {
  */
 object PosixTimeRule extends FormatRule[JsNumber] {
   val format = "posix-time"
-  def isValid(d: JsNumber) = if (d.value.toDouble.isWhole && d.value.toDouble > 0) true else false
+  def isValid(d: JsNumber) = d.value.toDouble.isWhole && d.value.toDouble > 0
 }

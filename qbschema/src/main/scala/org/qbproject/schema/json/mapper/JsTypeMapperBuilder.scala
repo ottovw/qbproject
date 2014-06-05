@@ -1,6 +1,5 @@
 package org.qbproject.schema.json.mapper
 
-import org.qbproject.schema._
 import org.qbproject.schema.visitor._
 import play.api.libs.json._
 import play.api.libs.json.extensions.JsExtensions

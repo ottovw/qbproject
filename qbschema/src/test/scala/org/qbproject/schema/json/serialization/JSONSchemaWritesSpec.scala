@@ -14,15 +14,15 @@ object JSONSchemaWritesSpec extends Specification {
   "QBSchema" should {
 
     "to JSON schema with min rule" in {
-      val qbSchema = cls(
-        "n" -> number(min(10)))
+      val qbSchema = qbClass(
+        "n" -> qbNumber(min(10)))
       val jsonSchema = Json.toJson(qbSchema)
       (jsonSchema \ "n" \ "minimum").toString must contain("10")
     }
 
     "to JSON schema with max rule" in {
-      val qbSchema = cls(
-        "n" -> number(max(10)))
+      val qbSchema = qbClass(
+        "n" -> qbNumber(max(10)))
       val jsonSchema = Json.toJson(qbSchema)
       //      val j = Json.fromJson(jsonSchema)
       //      val schema: QBValue = j.get
@@ -30,18 +30,18 @@ object JSONSchemaWritesSpec extends Specification {
     }
 
     "to JSON schema with min and max rule" in {
-      val qbSchema = cls(
-        "n" -> number(min(5), max(10)))
+      val qbSchema = qbClass(
+        "n" -> qbNumber(min(5), max(10)))
       val jsonSchema = Json.toJson(qbSchema)
       (jsonSchema \ "n" \ "minimum").toString must contain("5")
       (jsonSchema \ "n" \ "maximum").toString must contain("10")
     }
 
     "to JSON schema with integer only" in {
-      val qbSchema = cls(
-        "firstName" -> string,
-        "lastName" -> string,
-        "age" -> integer)
+      val qbSchema = qbClass(
+        "firstName" -> qbString,
+        "lastName" -> qbString,
+        "age" -> qbInteger)
       val jsonSchema = Json.toJson(qbSchema)
       val j = Json.fromJson(jsonSchema)(valueReader)
       val schema: QBType = j.get
@@ -49,10 +49,10 @@ object JSONSchemaWritesSpec extends Specification {
     }
 
     "to JSON schema with number only" in {
-      val qbSchema = cls(
-        "firstName" -> string,
-        "lastName" -> string,
-        "age" -> number)
+      val qbSchema = qbClass(
+        "firstName" -> qbString,
+        "lastName" -> qbString,
+        "age" -> qbNumber)
       val jsonSchema = Json.toJson(qbSchema)
       val j = Json.fromJson(jsonSchema)(valueReader)
       val schema: QBType = j.get
@@ -60,10 +60,10 @@ object JSONSchemaWritesSpec extends Specification {
     }
 
     "to JSON schema with number with min" in {
-      val qbSchema = cls(
-        "firstName" -> string,
-        "lastName" -> string,
-        "age" -> number(min(10.0)))
+      val qbSchema = qbClass(
+        "firstName" -> qbString,
+        "lastName" -> qbString,
+        "age" -> qbNumber(min(10.0)))
       val jsonSchema = Json.toJson(qbSchema)
       val j = Json.fromJson(jsonSchema)(valueReader)
       val schema: QBType = j.get
@@ -71,10 +71,10 @@ object JSONSchemaWritesSpec extends Specification {
     }
 
     "to JSON schema with number with max" in {
-      val qbSchema = cls(
-        "firstName" -> string,
-        "lastName" -> string,
-        "age" -> number(max(20)))
+      val qbSchema = qbClass(
+        "firstName" -> qbString,
+        "lastName" -> qbString,
+        "age" -> qbNumber(max(20)))
       val jsonSchema = Json.toJson(qbSchema)
       val j = Json.fromJson(jsonSchema)(valueReader)
       val schema: QBType = j.get
@@ -82,10 +82,10 @@ object JSONSchemaWritesSpec extends Specification {
     }
 
     "to JSON schema with number with min and isExclusive" in {
-      val qbSchema = cls(
-        "firstName" -> string,
-        "lastName" -> string,
-        "age" -> number(exclusiveMin(10.0)))
+      val qbSchema = qbClass(
+        "firstName" -> qbString,
+        "lastName" -> qbString,
+        "age" -> qbNumber(exclusiveMin(10.0)))
       val jsonSchema = Json.toJson(qbSchema)
       val j = Json.fromJson(jsonSchema)(valueReader)
       val schema: QBType = j.get

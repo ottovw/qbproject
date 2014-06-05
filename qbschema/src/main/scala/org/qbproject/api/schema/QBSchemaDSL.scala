@@ -1,11 +1,7 @@
 package org.qbproject.api.schema
 
 import play.api.libs.json._
-import play.api.libs.json.JsArray
-import play.api.libs.json.JsString
 import scala.Some
-import play.api.libs.json.JsNumber
-import play.api.libs.json.JsObject
 
 /**
  * QB DSL.
@@ -21,13 +17,13 @@ trait QBSchemaDSL {
   /**
    * Classes.
    */
-  def cls(els: List[(String, QBType)])(): QBClass =
+  def qbClass(els: List[(String, QBType)])(): QBClass =
     buildClass(els)
 
-  def cls(els: (String, QBType)*): QBClass =
+  def qbClass(els: (String, QBType)*): QBClass =
     buildClass(els.toList)
 
-  def cls(els: List[(String, QBType)], rules: ValidationRule[JsObject]*): QBClass =
+  def qbClass(els: List[(String, QBType)], rules: ValidationRule[JsObject]*): QBClass =
     buildClass(els, rules.toSet)
 
   private def buildClass(attributes: List[(String,QBType)], rules: Set[ValidationRule[JsObject]] = Set.empty): QBClass = {
@@ -44,43 +40,42 @@ trait QBSchemaDSL {
   /**
    * Array Rules
    */
-  def arr(dataType: => QBType): QBArray = QBArrayImpl(dataType)
-  def arr(dataType: => QBType, rules: ValidationRule[JsArray]*): QBArray = QBArrayImpl(dataType, rules.toSet)
+  def qbList(dataType: => QBType): QBArray = QBArrayImpl(dataType)
+  def qbList(dataType: => QBType, rules: ValidationRule[JsArray]*): QBArray = QBArrayImpl(dataType, rules.toSet)
 
   /**
    * String Rules
    */
-  def string(rules: ValidationRule[JsString]*): QBString = QBStringImpl(rules.toSet)
-  def string = QBStringImpl()
+  def qbString(rules: ValidationRule[JsString]*): QBString = QBStringImpl(rules.toSet)
+  def qbString = QBStringImpl()
 
-  def text = string
-  def nonEmptyText = string(minLength(1))
+  def qbText = qbString
+  def qbNonEmptyText = qbString(minLength(1))
 
   def minLength(n: Int): MinLengthRule = new MinLengthRule(n)
   def maxLength(n: Int): MaxLengthRule = new MaxLengthRule(n)
-  def length(lower: Int, upper: Int): ValidationRule[JsString] = {
-    new CompositeRule[JsString] {
+  def length(lower: Int, upper: Int): ValidationRule[JsString] = new CompositeRule[JsString] {
       val rules: Set[ValidationRule[JsString]] = Set(minLength(lower), maxLength(upper))
-    }
   }
 
-  def enum(values: String*) = string(new EnumRule(values.toList))
+  def qbEnum(values: String*) = qbString(new EnumRule(values.toList))
 
   def pattern(regex: String, errMessage: String = "qb.invalid.pattern") = new RegexRule(regex) {
     override val errorMessage = errMessage
   }
-  def email = string(pattern("""\b[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\b""", "invalid.email"))
 
-  def dateTime = new QBDateTimeImpl(Set(DateTimeRule))
+  def qbEmail = qbString(pattern("""\b[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\b""", "q.invalid.email"))
+
+  def qbDateTime = new QBDateTimeImpl(Set(DateTimeRule))
 
   // TODO: DSL should not allow specifying doubles when posixTime type is used 
-  def posixTime = new QBPosixTimeImpl(Set(PosixTimeRule))
+  def qbPosixTime = new QBPosixTimeImpl(Set(PosixTimeRule))
 
   /**
    * Number Rules
    */
-  def number: QBNumberClass = QBNumberClass()
-  def number(rules: ValidationRule[JsNumber]*): QBNumber = QBNumberClass(rules.toSet)
+  def qbNumber: QBNumberImpl = QBNumberImpl()
+  def qbNumber(rules: ValidationRule[JsNumber]*): QBNumber = QBNumberImpl(rules.toSet)
 
   def min(n: Double) = MinRule(n, false)
   def min(n: Int): DoubleRuleWrapper = DoubleRuleWrapper(MinRule(n, false))
@@ -107,13 +102,13 @@ trait QBSchemaDSL {
     val rules: Set[ValidationRule[JsNumber]] = Set(min(lower.toDouble), max(upper.toDouble))
   })
 
-  def integer: QBIntegerImpl = QBIntegerImpl()
-  def integer(rules: DoubleRuleWrapper*): QBIntegerImpl = QBIntegerImpl(rules.map(_.rule).toSet)
+  def qbInteger: QBIntegerImpl = QBIntegerImpl()
+  def qbInteger(rules: DoubleRuleWrapper*): QBIntegerImpl = QBIntegerImpl(rules.map(_.rule).toSet)
 
   /**
    * Boolean Rules
    */
-  def bool: QBBoolean = QBBooleanImpl()
+  def qbBoolean: QBBoolean = QBBooleanImpl()
 
   /**
    * Array Rules
@@ -127,7 +122,7 @@ trait QBSchemaDSL {
   def minProperties(min: Int) = MinPropertiesRule(min)
   def maxProperties(max: Int) = MaxPropertiesRule(max)
 
-  def id = string
+  def qbId = qbString
 
   /**
    * DSL helper class

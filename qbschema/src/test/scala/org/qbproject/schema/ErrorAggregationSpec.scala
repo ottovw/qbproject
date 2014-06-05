@@ -16,13 +16,13 @@ class ErrorAggregationSpec extends Specification {
 
     "return errors for all fields with empty input object" in {
 
-      val schema = cls(
-        "ratingStatus" -> enum("pending", "approved", "rejected"),
-        "rating" -> integer,
-        "comment" -> string(maxLength(2000)),
-        "firstName" -> optional(string(strLength(1, 50))),
-        "lastName" -> string(strLength(1, 50)),
-        "ratingDate" -> dateTime)
+      val schema = qbClass(
+        "ratingStatus" -> qbEnum("pending", "approved", "rejected"),
+        "rating" -> qbInteger,
+        "comment" -> qbString(maxLength(2000)),
+        "firstName" -> optional(qbString(strLength(1, 50))),
+        "lastName" -> qbString(strLength(1, 50)),
+        "ratingDate" -> qbDateTime)
 
       val result: JsError = QBValidator.validate(schema)(Json.obj()).asInstanceOf[JsError]
       result.errors.length must beEqualTo(5)
@@ -35,7 +35,7 @@ class ErrorAggregationSpec extends Specification {
     }
 
     "return errors for optional value with wrong type" in {
-      val schema = cls("name" -> optional(string))
+      val schema = qbClass("name" -> optional(qbString))
       val data = Json.obj("name" -> 1234)
 
       val result: JsError = QBValidator.validate(schema)(data).asInstanceOf[JsError]
@@ -43,10 +43,10 @@ class ErrorAggregationSpec extends Specification {
     }
 
     "return errors for nested objects" in {
-      val schema = cls(
-        "name" -> cls(
-          "firstName" -> string,
-          "lastName" -> string))
+      val schema = qbClass(
+        "name" -> qbClass(
+          "firstName" -> qbString,
+          "lastName" -> qbString))
       val data = Json.obj("name" -> Json.obj("firstName" -> "Otto", "lastName" -> 23))
 
       val result: JsError = QBValidator.validate(schema)(data).asInstanceOf[JsError]
@@ -56,8 +56,8 @@ class ErrorAggregationSpec extends Specification {
     }
 
     "return errors for an array with various instance types (bool)" in {
-      val schema = cls(
-        "a" -> arr(string))
+      val schema = qbClass(
+        "a" -> qbList(qbString))
       val data = Json.obj(
         "a" -> Json.arr(true, 2))
       val result = QBValidator.validate(schema)(data).asInstanceOf[JsError]
@@ -68,9 +68,9 @@ class ErrorAggregationSpec extends Specification {
 
 
     "emit error message in case the instance does not adhere the schema" in {
-      val schema = cls(
-        "o" -> cls(
-          "s" -> string(minLength(5))))
+      val schema = qbClass(
+        "o" -> qbClass(
+          "s" -> qbString(minLength(5))))
       val instance = Json.obj(
         "o" -> Json.obj(
           "s" -> 5))
@@ -79,9 +79,9 @@ class ErrorAggregationSpec extends Specification {
     }
 
     "emit error message in case the instance violates the schema [array]" in {
-      val schema = cls(
-        "o" -> cls(
-          "s" -> arr(string)))
+      val schema = qbClass(
+        "o" -> qbClass(
+          "s" -> qbList(qbString)))
       val instance = Json.obj(
         "o" -> Json.obj(
           "s" -> 5))
@@ -91,9 +91,9 @@ class ErrorAggregationSpec extends Specification {
     }
 
     "emit error message in case the instance violates the schema [string in array]" in {
-      val schema = cls(
-        "o" -> cls(
-          "s" -> arr(string)))
+      val schema = qbClass(
+        "o" -> qbClass(
+          "s" -> qbList(qbString)))
       val instance = Json.obj(
         "o" -> Json.obj(
           "s" -> List(5)))
@@ -103,9 +103,9 @@ class ErrorAggregationSpec extends Specification {
     }
 
     "return errors for an object with duplicate field names" in {
-      cls(
-        "a" -> arr(integer),
-        "a" -> number) must throwA[RuntimeException]("qb.duplicate.fields - a")
+      qbClass(
+        "a" -> qbList(qbInteger),
+        "a" -> qbNumber) must throwA[RuntimeException]("qb.duplicate.fields - a")
     }
   }
 }

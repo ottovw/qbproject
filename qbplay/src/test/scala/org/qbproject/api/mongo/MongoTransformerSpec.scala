@@ -1,10 +1,8 @@
 package org.qbproject.api.mongo
 
 import org.specs2.mutable.Specification
-import play.api.libs.json.{ JsString, Json, JsSuccess, JsNumber }
-import org.qbproject.api.mongo.{MongoTransformer, MongoSchemaExtensions}
+import play.api.libs.json.{ JsString, Json }
 import MongoSchemaExtensions._
-import org.qbproject.schema._
 import org.qbproject.api.schema.{QBClass, QBSchema}
 import QBSchema._
 import reactivemongo.bson.BSONObjectID
@@ -14,7 +12,7 @@ object MongoTransformerSpec extends Specification {
 
   "MongoTransformer" should {
 
-    val schema = cls("o" -> objectId, "d" -> dateTime, "e" -> posixTime)
+    val schema = qbClass("o" -> objectId, "d" -> qbDateTime, "e" -> qbPosixTime)
     val id = BSONObjectID.generate.stringify
     val date = new DateTime().toString()
     val time = System.currentTimeMillis() / 1000L
@@ -30,7 +28,7 @@ object MongoTransformerSpec extends Specification {
     }
 
     "support writes with multiple nested" in {
-      val schema = cls("o" -> objectId, "d" -> dateTime, "e" -> posixTime, "i" -> cls("x" -> objectId))
+      val schema = qbClass("o" -> objectId, "d" -> qbDateTime, "e" -> qbPosixTime, "i" -> qbClass("x" -> objectId))
       val i = Json.obj("o" -> id, "d" -> date, "e" -> time, "i" -> Json.obj("x" -> id))
       val mongoTransformer = new MongoTransformer(schema)
       val result = mongoTransformer.write(i)
@@ -53,10 +51,10 @@ object MongoTransformerSpec extends Specification {
     }
 
     "support reads with array" in {
-      val schema = cls(
-        "o" -> arr(objectId),
-        "d" -> dateTime,
-        "e" -> posixTime)
+      val schema = qbClass(
+        "o" -> qbList(objectId),
+        "d" -> qbDateTime,
+        "e" -> qbPosixTime)
 
       val i = Json.obj(
         "o" -> Json.arr(Json.obj("$oid" -> id)),
@@ -69,7 +67,7 @@ object MongoTransformerSpec extends Specification {
     }
 
     "support nested reads" in {
-      val schema = cls("o" -> objectId, "d" -> cls("o2" -> objectId), "e" -> posixTime)
+      val schema = qbClass("o" -> objectId, "d" -> qbClass("o2" -> objectId), "e" -> qbPosixTime)
 
       val i = Json.obj(
         "o"  -> Json.obj("$oid" -> id),
@@ -82,7 +80,7 @@ object MongoTransformerSpec extends Specification {
 
     "support multiple, nested reads" in {
 
-      val schema = cls("o" -> objectId, "d" -> dateTime, "e" -> posixTime)
+      val schema = qbClass("o" -> objectId, "d" -> qbDateTime, "e" -> qbPosixTime)
 
 
       val i = Json.obj(
@@ -107,11 +105,11 @@ object MongoTransformerSpec extends Specification {
             "date" -> date,
             "time" -> time)))
       val mongoTransformer = new MongoTransformer(schema
-        ++ cls(
-        "f" -> cls(
-          "g" -> cls(
-            "date" -> dateTime,
-            "time" -> posixTime))))
+        ++ qbClass(
+        "f" -> qbClass(
+          "g" -> qbClass(
+            "date" -> qbDateTime,
+            "time" -> qbPosixTime))))
       val result = mongoTransformer.read(i)
 
       result.asOpt.isDefined must beTrue
@@ -140,37 +138,37 @@ object MongoTransformerSpec extends Specification {
             "date" -> date,
             "date2" -> date,
             "time" -> time)))
-      val mongoTransformer = new MongoTransformer(schema ++ cls(
-        "f" -> cls(
-          "g" -> cls(
-            "date" -> dateTime,
-            "date2" -> dateTime,
-            "time" -> posixTime))))
+      val mongoTransformer = new MongoTransformer(schema ++ qbClass(
+        "f" -> qbClass(
+          "g" -> qbClass(
+            "date" -> qbDateTime,
+            "date2" -> qbDateTime,
+            "time" -> qbPosixTime))))
 
       val result = mongoTransformer.read(input)
       result.asOpt.isDefined must beTrue
       result.get must beEqualTo(expected)
     }
 
-    val core = cls(
+    val core = qbClass(
       "id" -> objectId,
-      "lastModified" -> dateTime,
-      "creationDate" -> dateTime)
+      "lastModified" -> qbDateTime,
+      "creationDate" -> qbDateTime)
 
-    val companyCore = core ++ cls(
-      "companyId" -> integer,
-      "companyStatus" -> enum("active", "inactive"))
+    val companyCore = core ++ qbClass(
+      "companyId" -> qbInteger,
+      "companyStatus" -> qbEnum("active", "inactive"))
 
-    val coordinates = cls(
-      "lat" -> number,
-      "lng" -> number)
+    val coordinates = qbClass(
+      "lat" -> qbNumber,
+      "lng" -> qbNumber)
 
-    val companyInfo = cls(
-      "name" -> string,
-      "location" -> cls(
+    val companyInfo = qbClass(
+      "name" -> qbString,
+      "location" -> qbClass(
         "coordinates" -> coordinates))
 
-    val dbCompany: QBClass = companyCore ++ cls(
+    val dbCompany: QBClass = companyCore ++ qbClass(
       "company" -> companyInfo)
 
     "support write complex" in {
@@ -210,7 +208,7 @@ object MongoTransformerSpec extends Specification {
     }
 
     "support optional writes with present field" in {
-      val schema = cls("o" -> objectId, "d" -> optional(dateTime), "e" -> posixTime)
+      val schema = qbClass("o" -> objectId, "d" -> optional(qbDateTime), "e" -> qbPosixTime)
       val instance = Json.obj("o" -> id, "d" -> date, "e" -> time)
       val mongoTransformer = new MongoTransformer(schema)
       val result = mongoTransformer.write(instance)
@@ -221,7 +219,7 @@ object MongoTransformerSpec extends Specification {
     }
 
     "support optional reads with present field" in {
-      val schema = cls("o" -> objectId, "d" -> optional(dateTime), "e" -> posixTime)
+      val schema = qbClass("o" -> objectId, "d" -> optional(qbDateTime), "e" -> qbPosixTime)
       val instance = Json.obj("o" -> Json.obj(
         "$oid" -> id),
         "d" -> Json.obj("$date" -> date),
@@ -232,7 +230,7 @@ object MongoTransformerSpec extends Specification {
     }
 
     "support optional writes with missing field" in {
-      val schema = cls("o" -> objectId, "d" -> optional(dateTime), "e" -> posixTime)
+      val schema = qbClass("o" -> objectId, "d" -> optional(qbDateTime), "e" -> qbPosixTime)
       val instance = Json.obj("o" -> id, "e" -> time)
       val mongoTransformer = new MongoTransformer(schema)
       val result = mongoTransformer.write(instance)
@@ -242,7 +240,7 @@ object MongoTransformerSpec extends Specification {
     }
 
     "support optional reads with present field" in {
-      val schema = cls("o" -> objectId, "d" -> optional(dateTime), "e" -> posixTime)
+      val schema = qbClass("o" -> objectId, "d" -> optional(qbDateTime), "e" -> qbPosixTime)
       val instance = Json.obj("o" -> Json.obj(
         "$oid" -> id),
         "e" -> Json.obj("$date" -> time))
@@ -252,7 +250,7 @@ object MongoTransformerSpec extends Specification {
     }
 
     "support default writes with present field" in {
-      val schema = cls("o" -> objectId, "d" -> default(dateTime, JsString(date)), "e" -> posixTime)
+      val schema = qbClass("o" -> objectId, "d" -> default(qbDateTime, JsString(date)), "e" -> qbPosixTime)
       val instance = Json.obj("o" -> id, "d" -> date, "e" -> time)
       val mongoTransformer = new MongoTransformer(schema)
       val result = mongoTransformer.write(instance)
@@ -263,7 +261,7 @@ object MongoTransformerSpec extends Specification {
     }
 
     "support default reads with present field" in {
-      val schema = cls("o" -> objectId, "d" -> default(dateTime, JsString(date)), "e" -> posixTime)
+      val schema = qbClass("o" -> objectId, "d" -> default(qbDateTime, JsString(date)), "e" -> qbPosixTime)
       val instance = Json.obj("o" -> Json.obj(
         "$oid" -> id),
         "d" -> Json.obj("$date" -> date),
@@ -277,7 +275,7 @@ object MongoTransformerSpec extends Specification {
      * Extension to MongoTransfomer
      */
     "rewrite _id to id" in {
-      val schema = cls("id" -> objectId)
+      val schema = qbClass("id" -> objectId)
       val instance = Json.obj("_id" -> Json.obj("$oid" -> "52eb6c66e4b08a001831aa9a"))
       val expected = Json.obj("id" -> "52eb6c66e4b08a001831aa9a")
       val mongoTransformer = new MongoTransformer(schema)
@@ -285,7 +283,7 @@ object MongoTransformerSpec extends Specification {
     }
 
     "rewrite id to _id" in {
-      val schema = cls("id" -> objectId)
+      val schema = qbClass("id" -> objectId)
       val instance = Json.obj("id" -> "52eb6c66e4b08a001831aa9a")
       val expected = Json.obj("_id" -> Json.obj("$oid" -> "52eb6c66e4b08a001831aa9a"))
       val mongoTransformer = new MongoTransformer(schema)

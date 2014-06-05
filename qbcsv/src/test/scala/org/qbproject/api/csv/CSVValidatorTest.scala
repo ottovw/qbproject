@@ -11,12 +11,12 @@ import org.junit.runner.RunWith
 @RunWith(classOf[JUnitRunner])
 class CSVValidatorTest extends Specification {
 
-  val testSchema = cls(
-    "id" -> string,
-    "name" -> string,
-    "email" -> string,
-    "age" -> readOnly(number),
-    "tags" -> arr(string))
+  val testSchema = qbClass(
+    "id" -> qbString,
+    "name" -> qbString,
+    "email" -> qbString,
+    "age" -> readOnly(qbNumber),
+    "tags" -> qbList(qbString))
 
   val testData = """id;name;email;age;tags[0];tags[1]
     1;Eddy;eddy@qb.org;28;yolo;quake
@@ -41,13 +41,13 @@ class CSVValidatorTest extends Specification {
     }
 
     "read basic csv with default" in {
-      val testSchema = cls(
-        "id" -> string,
-        "name" -> string,
-        "email" -> string,
-        "age" -> readOnly(number),
-        "tags" -> arr(string),
-        "sex" -> default(string, JsString("f")))
+      val testSchema = qbClass(
+        "id" -> qbString,
+        "name" -> qbString,
+        "email" -> qbString,
+        "age" -> readOnly(qbNumber),
+        "tags" -> qbList(qbString),
+        "sex" -> default(qbString, JsString("f")))
       val result = parse(testSchema, testData)
       result.size must beEqualTo(2)
       val r = QBValidator.validate(testSchema)(result(0).get.get.asInstanceOf[JsObject])
@@ -61,13 +61,13 @@ class CSVValidatorTest extends Specification {
     }
 
     "read basic csv with missing optional" in {
-      val testSchema = cls(
-        "id" -> string,
-        "name" -> string,
-        "email" -> string,
-        "age" -> readOnly(number),
-        "tags" -> arr(string),
-        "sex" -> optional(string, JsString("f")))
+      val testSchema = qbClass(
+        "id" -> qbString,
+        "name" -> qbString,
+        "email" -> qbString,
+        "age" -> readOnly(qbNumber),
+        "tags" -> qbList(qbString),
+        "sex" -> optional(qbString, JsString("f")))
       val testData = """id;name;email;age;tags[0];tags[1];sex
         1;Eddy;eddy@qb.org;28;yolo;quake
         2;Otto;otto@qb.org;26;ginger"""
@@ -84,14 +84,76 @@ class CSVValidatorTest extends Specification {
         "sex" -> "f"))
     }
 
+    "read basic csv with missing optional and without fallback value" in {
+      val testSchema = qbClass(
+        "id" -> qbString,
+        "name" -> qbString,
+        "email" -> qbString,
+        "age" -> readOnly(qbNumber),
+        "tags" -> qbList(qbString),
+        "sex" -> optional(qbString))
+      val testData = """id;name;email;age;tags[0];tags[1];sex
+        1;Eddy;eddy@qb.org;28;yolo;quake
+        2;Otto;otto@qb.org;26;ginger"""
+      val result = parse(testSchema, testData)
+      result.size must beEqualTo(2)
+      QBValidator.validateJsValue(testSchema)(result(0).get.get).get must beEqualTo(Json.obj(
+        "id" -> "1",
+        "name" -> "Eddy",
+        "email" -> "eddy@qb.org",
+        "age" -> 28,
+        "tags" -> Json.arr("yolo", "quake")))
+    }
+
+    "read basic csv with missing optional enum and with fallback value" in {
+      val testSchema = qbClass(
+        "id" -> qbString,
+        "name" -> qbString,
+        "email" -> qbString,
+        "age" -> readOnly(qbNumber),
+        "tags" -> qbList(qbString),
+        "sex" -> optional(qbEnum("foo", "bar", "quux"), JsString("bar")))
+      val testData = """id;name;email;age;tags[0];tags[1];sex
+        1;Eddy;eddy@qb.org;28;yolo;quake
+        2;Otto;otto@qb.org;26;ginger"""
+      val result = parse(testSchema, testData)
+      result.size must beEqualTo(2)
+      QBValidator.validateJsValue(testSchema)(result(0).get.get).get must beEqualTo(Json.obj(
+        "id" -> "1",
+        "name" -> "Eddy",
+        "email" -> "eddy@qb.org",
+        "age" -> 28,
+        "tags" -> Json.arr("yolo", "quake"),
+        "sex" -> "bar"))
+    }
+
+    "read basic csv with missing optional enum and without fallback value" in {
+      val testSchema = qbClass(
+        "id" -> qbString,
+        "enum" -> optional(qbEnum("foo", "bar", "quux")))
+
+      val testData = """id;enum
+        1;
+        2;foo"""
+      val result = parse(testSchema, testData)
+      result.size must beEqualTo(2)
+      QBValidator.validateJsValue(testSchema)(result(0).get.get).get must beEqualTo(Json.obj(
+        "id" -> "1"
+      ))
+      QBValidator.validateJsValue(testSchema)(result(1).get.get).get must beEqualTo(Json.obj(
+        "id" -> "2",
+        "enum" -> "foo"
+      ))
+    }
+//
     "read basic csv with present optional" in {
-      val testSchema = cls(
-        "id" -> string,
-        "name" -> string,
-        "email" -> string,
-        "age" -> readOnly(number),
-        "sex" -> optional(string, JsString("f")),
-        "tags" -> arr(string)
+      val testSchema = qbClass(
+        "id" -> qbString,
+        "name" -> qbString,
+        "email" -> qbString,
+        "age" -> readOnly(qbNumber),
+        "sex" -> optional(qbString, JsString("f")),
+        "tags" -> qbList(qbString)
         )
       val testData = """id;name;email;age;sex;tags[0];tags[1];
         1;Eddy;eddy@qb.org;28;m;yolo;quake
@@ -124,7 +186,7 @@ class CSVValidatorTest extends Specification {
 
     "read csv with boolean" in {
       val data = "bool;\ntrue"
-      val schema = cls("bool" -> bool)
+      val schema = qbClass("bool" -> qbBoolean)
 
       val result = parse(schema, data)
 
@@ -136,11 +198,11 @@ class CSVValidatorTest extends Specification {
     "allow tranformer plugins" in {
       val rangeData = """id;range
          1;"2-3""""
-      val rangeSchema = cls(
-        "id" -> number,
-        "range" -> cls(
-          "start" -> number,
-          "end" -> number))
+      val rangeSchema = qbClass(
+        "id" -> qbNumber,
+        "range" -> qbClass(
+          "start" -> qbNumber,
+          "end" -> qbNumber))
 
       val range = "([0-9]+)\\s*-\\s*([0-9]+)".r
 
@@ -160,8 +222,8 @@ class CSVValidatorTest extends Specification {
 
     "allow arrays with simple value in one column" in {
       val csv = "array\n\"a\nb\""
-      val schema = cls(
-        "array" -> arr(string))
+      val schema = qbClass(
+        "array" -> qbList(qbString))
 
       def arrayAdapter(index: Int)(value: String): String = {
         value.split("\n")(index)
@@ -182,10 +244,10 @@ class CSVValidatorTest extends Specification {
 
     "allow arrays with multiple values in one column" in {
       val csv = "array\n\"1//2\n3//4\""
-      val schema = cls(
-        "array" -> arr(cls(
-          "first" -> string,
-          "second" -> string)))
+      val schema = qbClass(
+        "array" -> qbList(qbClass(
+          "first" -> qbString,
+          "second" -> qbString)))
 
       def arrayAdapter(line: Int, part: Int)(value: String) = {
         val results = value.split("\n")(line).split("//").map(_.trim)

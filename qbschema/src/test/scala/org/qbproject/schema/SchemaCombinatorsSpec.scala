@@ -12,26 +12,26 @@ object SchemaCombinatorsSpec extends Specification {
 
   "Schema combinators" should {
 
-    val schema = cls(
-      "o" -> cls(
-        "n" -> cls(
-          "s" -> string(minLength(5)),
-          "t" -> integer,
-          "v" -> number)))
+    val schema = qbClass(
+      "o" -> qbClass(
+        "n" -> qbClass(
+          "s" -> qbString(minLength(5)),
+          "t" -> qbInteger,
+          "v" -> qbNumber)))
 
     "add a field to an existing path" in {
-      val updatedSchema = schema ++ ("o.n", "e" -> number)
+      val updatedSchema = schema ++ ("o.n", "e" -> qbNumber)
       updatedSchema.follow[QBNumber]("o.n.e") must beAnInstanceOf[QBNumber]
     }
 
     "add a field to an existing path directly" in {
-      val schema = cls("x" -> string)
-      val updatedSchema = schema ++ ("e" -> number)
+      val schema = qbClass("x" -> qbString)
+      val updatedSchema = schema ++ ("e" -> qbNumber)
       updatedSchema.attributes.size must beEqualTo(2)
     }
 
     "add multiple fields to an existing path" in {
-      val updatedSchema = schema ++ ("o", "e" -> number, "xx" -> string)
+      val updatedSchema = schema ++ ("o", "e" -> qbNumber, "xx" -> qbString)
       val resolved = updatedSchema.follow[QBClass]("o")
       resolved.attributes.size must beEqualTo(3)
     }
@@ -42,13 +42,13 @@ object SchemaCombinatorsSpec extends Specification {
     }
 
     "remove a field directly" in {
-      val schema = cls("i" -> string, "j" -> string)
+      val schema = qbClass("i" -> qbString, "j" -> qbString)
       val updatedSchema = schema - "i"
       updatedSchema.attributes.size must beEqualTo(1)
     }
 
     "remove multiple fields directly" in {
-      val schema = cls("i" -> string, "j" -> string, "x" -> string)
+      val schema = qbClass("i" -> qbString, "j" -> qbString, "x" -> qbString)
       val updatedSchema = schema -- ("i", "j")
       updatedSchema.attributes.size must beEqualTo(1)
     }
@@ -101,12 +101,12 @@ object SchemaCombinatorsSpec extends Specification {
     }
 
     "not be able to add a field to a non-existing path" in {
-      schema + ("o.x", "e" -> number) must throwA[RuntimeException]("field.does.not.exist")
+      schema + ("o.x", "e" -> qbNumber) must throwA[RuntimeException]("field.does.not.exist")
     }
 
     "be able to add a field" in {
-      val schema = cls("x" -> string)
-      val updatedSchema = schema + ("e" -> number)
+      val schema = qbClass("x" -> qbString)
+      val updatedSchema = schema + ("e" -> qbNumber)
       updatedSchema.attributes.size must beEqualTo(2)
     }
 
@@ -117,14 +117,14 @@ object SchemaCombinatorsSpec extends Specification {
     }
 
     "be able to rename a field" in {
-      val schema = cls("x" -> string)
+      val schema = qbClass("x" -> qbString)
       val updatedSchema = schema rename ("x", "y")
       val resolved = updatedSchema.follow[QBString]("y")
       resolved must beAnInstanceOf[QBString]
     }
 
     "be able to make a field optional" in {
-      val schema = cls("x" -> string)
+      val schema = qbClass("x" -> qbString)
       val updatedSchema = schema ? "x"
       val attr = updatedSchema.attributes.find(_.name == "x")
       attr must beSome.which(_.annotations.exists(_.isInstanceOf[QBOptionalAnnotation]))
@@ -151,64 +151,64 @@ object SchemaCombinatorsSpec extends Specification {
     }
 
     "be able to keep fields without path" in {
-      val schema = cls(
-        "a" -> integer,
-        "b" -> string)
+      val schema = qbClass(
+        "a" -> qbInteger,
+        "b" -> qbString)
       val updatedSchema = schema keep List("a")
       updatedSchema.attributes.size must beEqualTo(1)
     }
 
     "not be able to remove a fields from an existing flat path" in {
-      val schema = cls("o" -> string)
+      val schema = qbClass("o" -> qbString)
       val updatedSchema = schema - "o"
       updatedSchema.follow[QBClass]("o") must throwA[RuntimeException]
     }
 
     "add objects" in {
-      val schema = cls("o" -> string)
-      val updated = schema ++ cls(
-        "a" -> integer)
+      val schema = qbClass("o" -> qbString)
+      val updated = schema ++ qbClass(
+        "a" -> qbInteger)
       updated.attributes must have size 2
     }
 
     "override existing field" in {
-      val schema = cls("o" -> string)
-      val temp = schema ++ cls(
-        "a" -> integer)
-      val updated = temp + ("a" -> string)
+      val schema = qbClass("o" -> qbString)
+      val temp = schema ++ qbClass(
+        "a" -> qbInteger)
+      val updated = temp + ("a" -> qbString)
       updated.attributes must have size 2
       updated.attributes.exists(_.qbType.isInstanceOf[QBString]) must beTrue
     }
 
     "rename attribute by type" in {
-      val schema = cls("o" -> string)
+      val schema = qbClass("o" -> qbString)
       val updated = schema.mapOverAttributes(_.qbType.isInstanceOf[QBString])(attr => QBAttribute("o2", attr.qbType)).asInstanceOf[QBClass]
       updated.attributes.exists(_.name == "o2") must beTrue
     }
 
     "rename attribute" in {
-      val schema = cls("o" -> string)
+      val schema = qbClass("o" -> qbString)
       val updated = schema.mapOverAttributes(_.name == "o")(attr => QBAttribute("o2", attr.qbType)).asInstanceOf[QBClass]
       updated.attributes.exists(_.name == "o2") must beTrue
     }
 
     "rename object attribute" in {
-      val schema = cls("o" -> cls("s" -> string))
+      val schema = qbClass("o" -> qbClass("s" -> qbString))
       val updated = schema.mapOverAttributes(_.name == "o")(attr => QBAttribute("o2", attr.qbType)).asInstanceOf[QBClass]
       updated.attributes.exists(_.name == "o2") must beTrue
     }
 
     "add attribute" in {
-      val schema = cls(
-        "o" -> cls(
-          "n" -> optional(cls(
-            "s" -> string(minLength(5)),
-            "t" -> integer,
-            "v" -> number))))
+      val schema = qbClass(
+        "o" -> qbClass(
+          "n" -> optional(qbClass(
+            "s" -> qbString(minLength(5)),
+            "t" -> qbInteger,
+            "v" -> qbNumber))))
 
       val updated = update[QBClass](List("o", "n"), schema, obj => {
         val fields = obj.attributes
-        QBClassImpl(fields :+ QBAttribute("vv", number))
+        QBClassImpl(fields :+ QBAttribute("vv", qbNumber))
       })
 
       val buildDesc = resolve(List("o", "n", "vv"), updated)
@@ -216,42 +216,42 @@ object SchemaCombinatorsSpec extends Specification {
     }
 
     "should support equals" in {
-      val otherSchema = cls(
-        "o" -> cls(
-          "n" -> cls(
-            "s" -> string(minLength(5)),
-            "t" -> integer,
-            "v" -> number)))
+      val otherSchema = qbClass(
+        "o" -> qbClass(
+          "n" -> qbClass(
+            "s" -> qbString(minLength(5)),
+            "t" -> qbInteger,
+            "v" -> qbNumber)))
       schema must beEqualTo(otherSchema)
       schema.isEquals(otherSchema) must beTrue
       schema.equals(otherSchema) must beTrue
     }
 
     "emit true when comparing equal schemas" in {
-      val otherSchema = cls(
-        "o" -> cls(
-          "n" -> cls(
-            "s" -> string(minLength(5)),
-            "t" -> integer,
-            "v" -> number)))
+      val otherSchema = qbClass(
+        "o" -> qbClass(
+          "n" -> qbClass(
+            "s" -> qbString(minLength(5)),
+            "t" -> qbInteger,
+            "v" -> qbNumber)))
       schema must beEqualTo(otherSchema)
       schema.isEquals(otherSchema) must beTrue
       schema.equals(otherSchema) must beTrue
     }
 
     "emit true when comparing equal schemas with arrays" in {
-      val schemaA = cls(
-        "a" -> string,
-        "b" -> optional(integer),
-        "c" -> cls("d" -> bool),
-        "e" -> arr(integer)
+      val schemaA = qbClass(
+        "a" -> qbString,
+        "b" -> optional(qbInteger),
+        "c" -> qbClass("d" -> qbBoolean),
+        "e" -> qbList(qbInteger)
       )
 
-      val schemaB = cls(
-        "a" -> string,
-        "b" -> optional(integer),
-        "c" -> cls("d" -> bool),
-        "e" -> arr(integer)
+      val schemaB = qbClass(
+        "a" -> qbString,
+        "b" -> optional(qbInteger),
+        "c" -> qbClass("d" -> qbBoolean),
+        "e" -> qbList(qbInteger)
       )
       
       schemaA.isEquals(schemaB) must beTrue
@@ -259,32 +259,32 @@ object SchemaCombinatorsSpec extends Specification {
     }
 
     "emit false when comparing different schemas" in {
-      val otherSchema = cls(
-        "o" -> cls(
-          "n" -> cls(
-            "s" -> string(minLength(5)),
-            "t" -> integer)))
+      val otherSchema = qbClass(
+        "o" -> qbClass(
+          "n" -> qbClass(
+            "s" -> qbString(minLength(5)),
+            "t" -> qbInteger)))
       schema.isEquals(otherSchema) must beFalse
       schema.equals(otherSchema) must beFalse
     }
 
     "emit false when comparing equal schemas but with different annotation" in {
-      val otherSchema = cls(
-        "o" -> cls(
-          "n" -> cls(
-            "s" -> string(minLength(5)),
-            "t" -> optional(integer),
-            "v" -> number)))
+      val otherSchema = qbClass(
+        "o" -> qbClass(
+          "n" -> qbClass(
+            "s" -> qbString(minLength(5)),
+            "t" -> optional(qbInteger),
+            "v" -> qbNumber)))
       schema.isEquals(otherSchema) must beFalse
       schema.equals(otherSchema) must beFalse
     }
 
     "should determine whether a schema is part of another schema" in {
-      val otherSchema = cls(
-        "n" -> cls(
-          "s" -> string(minLength(5)),
-          "t" -> integer,
-          "v" -> number))
+      val otherSchema = qbClass(
+        "n" -> qbClass(
+          "s" -> qbString(minLength(5)),
+          "t" -> qbInteger,
+          "v" -> qbNumber))
       otherSchema.isSubSetOf(schema) must beTrue
     }
 
@@ -293,11 +293,11 @@ object SchemaCombinatorsSpec extends Specification {
     }
 
     "should determine whether a schema is not part of another schema" in {
-      val otherSchema = cls(
-        "n" -> cls(
-          "s" -> string(minLength(5)),
-          "t" -> integer,
-          "v" -> number))
+      val otherSchema = qbClass(
+        "n" -> qbClass(
+          "s" -> qbString(minLength(5)),
+          "t" -> qbInteger,
+          "v" -> qbNumber))
       schema.isSubSetOf(otherSchema) must beFalse
     }
   }

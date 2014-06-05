@@ -15,7 +15,14 @@ trait CSVSchemaAdapter extends QBAdapter[CSVRow] {
   override def atPrimitive[A <: QBPrimitiveType[_]](schema: A, path: JsPath)(implicit root: CSVRow): JsResult[JsValue] = {
     fromTryCatch({
       schema match {
-        case str: QBString => JsString(asString(path)(filter(path)(root)))
+        case str: QBString =>
+          val str = asString(path)(filter(path)(root))
+          if (str.length == 0 && schema.rules.exists(_.isInstanceOf[EnumRule])) {
+            // do not accept empty string if schema is an enum
+            JsUndefined("")
+          } else {
+            JsString(str)
+          }
         case bool: QBBoolean => JsBoolean(asBoolean(path)(filter(path)(root)))
         case int: QBInteger => JsNumber(asDouble(path)(filter(path)(root)))
         case num: QBNumber => JsNumber(asDouble(path)(filter(path)(root)))
