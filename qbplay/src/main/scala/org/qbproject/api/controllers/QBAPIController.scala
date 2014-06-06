@@ -5,7 +5,7 @@ import play.api.mvc._
 import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.http.HeaderNames._
-import org.qbproject.api.schema.{QBType, QBValidator}
+import org.qbproject.api.schema.{ QBType, QBValidator }
 
 trait QBAPIController extends Controller {
 
@@ -31,14 +31,17 @@ trait QBAPIController extends Controller {
 
   // --
 
-  def noJsonResponse: Future[SimpleResult] = Future(BadRequest("No Json found"))
+  def noJsonResponse: Future[SimpleResult] = Future(BadRequest(
+    Json.toJson(JsonAPIError("error", "No valid json found."))
+  ))
+  
   def jsonInvalidResponse(error: JsError): Future[SimpleResult] = Future(BadRequest(
-    Json.toJson(JsonAPIError("error", "invalid input", JsError.toFlatJson(error)))
+    Json.toJson(JsonAPIError("error", "Json input didn't pass validation", Some(JsError.toFlatJson(error))))
   ))
 
   // --
 
-  case class JsonAPIError(status: String, message: String = "", details: JsValue = JsString(""))
+  case class JsonAPIError(status: String, message: String = "", details: Option[JsValue] = None)
   object JsonAPIError {
     implicit val format: Format[JsonAPIError] = Json.format[JsonAPIError]
   }
@@ -51,7 +54,7 @@ class ValidatedJsonRequest[A](
   extends WrappedRequest[A](request)
 
 /**
- * Set json headers, so that api calls aren't cached
+ * Set json headers, so that api calls aren't cached. Especially a problem with IE.
  */
 case class JsonHeaders[A](action: Action[A]) extends Action[A] {
   def apply(request: Request[A]): Future[SimpleResult] = {
@@ -59,8 +62,7 @@ case class JsonHeaders[A](action: Action[A]) extends Action[A] {
       CACHE_CONTROL -> "no-store, no-cache, must-revalidate",
       EXPIRES -> "Sat, 23 May 1987 12:00:00 GMT",
       PRAGMA -> "no-cache",
-      CONTENT_TYPE -> "application/json; charset=utf-8"
-    ))
+      CONTENT_TYPE -> "application/json; charset=utf-8"))
   }
   lazy val parser = action.parser
 }
