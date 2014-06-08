@@ -3,8 +3,8 @@ package org.qbproject.api.controllers
 import play.api.mvc.Action
 import play.api.libs.json._
 import play.api.libs.concurrent.Execution.Implicits._
+import org.qbproject.api.routing.QBRouterDSL._
 import org.qbproject.api.routing.QBRoute
-import org.qbproject.api.routing.QBRoutes._
 import org.qbproject.api.mongo.{ QBCollectionValidation, QBMongoCollection }
 
 trait QBCrudController extends QBAPIController { self =>

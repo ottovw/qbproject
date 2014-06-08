@@ -1,8 +1,9 @@
 package org.qbproject.api.routing
 
 import org.specs2.mutable._
-import org.qbproject.api.routing.QBRoutes.{ GET => qbGET, POST => qbPOST, _ }
-import org.qbproject.api.routing.QBRouterUtil.namespace
+import org.qbproject.api.routing.QBRouterDSL.{ GET => qbGET, POST => qbPOST, _ }
+import org.qbproject.api.routing.QBRouteWrapping._
+import org.qbproject.api.routing.QBRouterUtil.QBRouteCollector
 import play.core.Router
 import play.api.mvc._
 import play.api.test.WithApplication
@@ -78,17 +79,19 @@ class QBBaseRouterExtensionsSpec extends PlaySpecification {
     // Actions
     def foo = Action { Ok("foo") }
 
-    val fooRoute = GET / "foo" to foo
+    val fooRoute = (GET / "foo" to foo).wrapWith(SetHeaderAction(_))
     val authRoute = GET / "auth" / "foo" to foo
     val notWrappedRoute = GET / "bar" to foo
 
     val FakeAppWithRouter = new FakeApplication {
       override lazy val routes: Option[Router.Routes] = Some(new QBRouter {
-        override val qbRoutes = fooRoute :: authRoute :: notWrappedRoute :: Nil
 
-        override val wrappers = Map(
-          fooRoute wrapWith (SetHeaderAction(_)),
-          authRoute wrapWith (TestAuthAction(_)))
+        override val qbRoutes =
+          fooRoute ::
+            authRoute.wrapWith(TestAuthAction(_)) ::
+            notWrappedRoute ::
+            namespace("ns", fooRoute) :: Nil
+
       })
     }
 
@@ -136,6 +139,11 @@ class QBBaseRouterExtensionsSpec extends PlaySpecification {
       result.map(contentAsString) must beSome("foo")
     }
 
+    "loose wrapper when using namespace (copying)" in new WithApplication(WrappingTestController.FakeAppWithRouter) {
+      val result = route(FakeRequest(GET, "/ns/foo"))
+      result.map(contentAsString) must beSome("foo")
+      result.flatMap(header("foo", _)) must beSome("bar")
+    }
   }
 
 }

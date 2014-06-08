@@ -4,46 +4,43 @@ import play.api.mvc.Handler
 import play.api.mvc.RequestHeader
 import play.api.mvc.Action
 
-trait QBRouteWrapping {
-  self: QBBaseRouter =>
+object QBRouteWrapping {
 
-  def wrappers: Map[List[QBRoute], List[Handler => Handler]] = Map.empty
-
-  override def resolveHandler(requestHeader: RequestHeader): Option[Handler] = {
-    for {
-      route <- qbRoutes.find(_.matches(prefix, requestHeader))
-      handler <- route.getHandler(prefix, requestHeader)
-      wrappedHandler <- wrapHandler(route, handler)
-    } yield wrappedHandler
-  }
-
-  def wrapHandler[A](route: QBRoute, handler: Handler): Option[Handler] = handler match {
-    case action: Action[A] =>
-      val activeWrappers = wrappers.collectFirst {
-        case (wrapRoutes, wrapHandler) if (wrapRoutes.exists(_.path == route.path)) =>
-          wrapHandler
-      }.getOrElse(List.empty)
-      Some(activeWrappers.foldLeft(action.asInstanceOf[Handler])((act, wrapper) => wrapper(act)))
-    case _ => None
-  }
-
-  case class HandlerFunction(fn: Action[_] => Action[_]) {
-    def cast: Handler => Handler = fn.asInstanceOf[Handler => Handler]
-  }
+  // TODO can we solve this in a nicer way?
+  protected def actionHandlerCast(fn: Action[_] => Action[_]): Handler => Handler = fn.asInstanceOf[Handler => Handler]
 
   implicit class RoutesExtensionOps(routes: List[QBRoute]) {
-    def wrapWith(wrapper: Action[_] => Action[_]): (List[QBRoute], List[Handler => Handler]) =
-      routes -> List(HandlerFunction(wrapper).cast)
+    def wrapWith(wrapper: Action[_] => Action[_]): List[QBWrappedRoute] =
+      routes.map(baseRoute => new QBWrappedRoute(baseRoute, actionHandlerCast(wrapper)))
 
-    def wrapWith(wrappers: List[Action[_] => Action[_]]): (List[QBRoute], List[Handler => Handler]) =
-      routes -> wrappers.map(fn => HandlerFunction(fn).cast)
+    def wrapWith(wrappers: List[Action[_] => Action[_]]): List[QBWrappedRoute] =
+      routes.map(baseRoute => new QBWrappedRoute(baseRoute, wrappers.map(actionHandlerCast): _*))
   }
 
   implicit class RouteExtensionOps(route: QBRoute) {
-    def wrapWith(wrappers: List[Action[_] => Action[_]]): (List[QBRoute], List[Handler => Handler]) =
-      List(route) -> wrappers.map(HandlerFunction(_).cast)
+    def wrapWith(wrappers: List[Action[_] => Action[_]]): QBWrappedRoute =
+      new QBWrappedRoute(route, wrappers.map(actionHandlerCast(_)): _*)
 
-    def wrapWith(wrapper: Action[_] => Action[_]): (List[QBRoute], List[Handler => Handler]) =
-      List(route) -> List(HandlerFunction(wrapper).cast)
+    def wrapWith(wrapper: Action[_] => Action[_]): QBWrappedRoute =
+      new QBWrappedRoute(route, actionHandlerCast(wrapper))
   }
+}
+
+class QBWrappedRoute(wrappedRoute: QBRoute, wrappers: (Handler => Handler)*) extends QBRoute {
+
+  /** Delegates */
+  def path: String = wrappedRoute.path
+
+  def copy(path: String = path): QBRoute = new QBWrappedRoute(wrappedRoute.copy(path), wrappers: _*)
+
+  def matches(namespace: String, requestHeader: RequestHeader): Boolean = wrappedRoute.matches(namespace, requestHeader)
+
+  def getHandler(namespace: String, requestHeader: RequestHeader): Option[Handler] = {
+    wrappedRoute.getHandler(namespace, requestHeader) match {
+      case Some(action: Action[_]) =>
+        Some(wrappers.foldLeft(action.asInstanceOf[Handler])((act, nextWrapper) => nextWrapper(act)))
+      case _ => None
+    }
+  }
+
 }

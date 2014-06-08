@@ -1,9 +1,8 @@
 package org.qbproject.api.routing
 
 import org.specs2.mutable._
-import org.qbproject.api.routing.QBRoutes._
+import org.qbproject.api.routing._
 import play.api.mvc._
-import org.qbproject.api.routing.QBRouterUtil.namespace
 
 class QBRouterUtilSpec extends Specification {
 

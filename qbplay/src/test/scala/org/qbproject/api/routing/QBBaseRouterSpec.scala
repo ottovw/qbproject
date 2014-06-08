@@ -1,8 +1,9 @@
 package org.qbproject.api.routing
 
 import org.specs2.mutable._
-import org.qbproject.api.routing.QBRoutes.{ GET => qbGET, POST => qbPOST, _ }
-import org.qbproject.api.routing.QBRouterUtil.namespace
+import org.qbproject.api.routing.QBRouterDSL.{ GET => qbGET, POST => qbPOST, _ }
+import org.qbproject.api.routing.QBRouteWrapping._
+import org.qbproject.api.routing.QBRouterUtil.QBRouteCollector
 import play.core.Router
 import play.api.mvc._
 import play.api.test.WithApplication
@@ -20,8 +21,8 @@ class QBBaseRouterSpec extends PlaySpecification {
     def bar = Action { Ok("bar") }
 
     // Routes (qb Prefixes due to import conflict)
-    val rootRoute = GET / "" to root
-    val fooRoute = GET / "foo" to foo
+    val rootRoute = GET / ? to root
+    val fooRoute = GET / "foo" / ? to foo
     val barRoute = POST / "bar" to bar
     val foobar = GET / "foo" / "bar" to foo
     val foobar2 = GET / "bar/foo" to bar
@@ -46,6 +47,11 @@ class QBBaseRouterSpec extends PlaySpecification {
       result.map(contentAsString) must beSome("foo")
     }
 
+    "resolve a simple GET route with trailing slash" in new WithApplication(TestController.FakeAppWithRouter) {
+      val result = route(FakeRequest(GET, "/foo/"))
+      result.map(contentAsString) must beSome("foo")
+    }
+
     "not resolve a simple POST route on anothers route path" in new WithApplication(TestController.FakeAppWithRouter) {
       val result = route(FakeRequest(POST, "/foo"))
       result.map(contentAsString) must beNone
@@ -66,7 +72,7 @@ class QBBaseRouterSpec extends PlaySpecification {
       result.map(contentAsString) must beSome("bar")
     }
   }
-  
+
   object DynamicTestController extends Controller {
 
     // Actions
@@ -75,11 +81,11 @@ class QBBaseRouterSpec extends PlaySpecification {
     def echoBoth(int: Int, str: String) = Action { Ok(int + " " + str) }
     def twoString(str1: String, str2: String) = Action { Ok(str1 + " " + str2) }
 
-    val sayHello =       GET / "sayHello" / string             to echo
-    val numberRoute =    GET / "echonr" / int                  to number
-    val bothRoute =      GET / "both" / int / string           to echoBoth
+    val sayHello = GET / "sayHello" / string to echo
+    val numberRoute = GET / "echonr" / int to number
+    val bothRoute = GET / "both" / int / string to echoBoth
     val twoStringRoute = GET / "one" / string / "two" / string to twoString
-    
+
     val allRoutes = List(numberRoute, sayHello, bothRoute, twoStringRoute)
 
     val FakeAppWithRouter = new FakeApplication {
