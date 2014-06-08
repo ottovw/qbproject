@@ -79,29 +79,33 @@ class QBBaseRouterExtensionsSpec extends PlaySpecification {
     def foo = Action { Ok("foo") }
 
     val fooRoute = GET / "foo" to foo
-    val blockedRoute = GET / "block" to foo
+    val authRoute = GET / "auth" / "foo" to foo
     val notWrappedRoute = GET / "bar" to foo
 
     val FakeAppWithRouter = new FakeApplication {
       override lazy val routes: Option[Router.Routes] = Some(new QBRouter {
-        override val qbRoutes = fooRoute :: notWrappedRoute :: Nil
+        override val qbRoutes = fooRoute :: authRoute :: notWrappedRoute :: Nil
 
         override val wrappers = Map(
           fooRoute wrapWith (SetHeaderAction(_)),
-          blockedRoute wrapWith (NewResultAction(_)))
+          authRoute wrapWith (TestAuthAction(_)))
       })
     }
 
     case class SetHeaderAction[A](action: Action[A]) extends Action[A] {
       def apply(request: Request[A]): Future[SimpleResult] = {
-        action(request).map(_.withHeaders("Foo" -> "yes"))
+        action(request).map(_.withHeaders("foo" -> "bar"))
       }
       def parser = action.parser
     }
 
-    case class NewResultAction[A](action: Action[A]) extends Action[A] {
+    case class TestAuthAction[A](action: Action[A]) extends Action[A] {
       def apply(request: Request[A]): Future[SimpleResult] = {
-        Future.successful(Ok("You've got wrapped!"))
+        if (request.headers.get("auth") == Some("secret")) {
+          action(request)
+        } else {
+          Future.successful(Ok("No Auth!"))
+        }
       }
       def parser = action.parser
     }
@@ -109,21 +113,27 @@ class QBBaseRouterExtensionsSpec extends PlaySpecification {
 
   "QBRouter with Wrapping" should {
 
-    "get wrapped route" in new WithApplication(WrappingTestController.FakeAppWithRouter) {
+    "return wrapped route" in new WithApplication(WrappingTestController.FakeAppWithRouter) {
       val result = route(FakeRequest(GET, "/foo"))
       result.map(contentAsString) must beSome("foo")
-      result.flatMap(header("foo", _)) must beSome("yes")
+      result.flatMap(header("foo", _)) must beSome("bar")
     }
 
-    "get nonwrapped route when wrappers are registered in router" in new WithApplication(WrappingTestController.FakeAppWithRouter) {
+    "return nonwrapped route when wrappers are registered in router" in new WithApplication(WrappingTestController.FakeAppWithRouter) {
       val result = route(FakeRequest(GET, "/bar"))
       result.map(contentAsString) must beSome("foo")
       result.flatMap(header("foo", _)) must beNone
     }
-    
-    "return content of action which doesn't call the handler" in new WithApplication(WrappingTestController.FakeAppWithRouter) {
-      val result = route(FakeRequest(GET, "/blocked"))
-      result.map(contentAsString) must beSome("You've got wrapped!")
+
+    "return content of action which blocks initial action" in new WithApplication(WrappingTestController.FakeAppWithRouter) {
+      val result = route(FakeRequest(GET, WrappingTestController.authRoute.path))
+      result.map(contentAsString) must beSome("No Auth!")
+    }
+
+    "wrapping action directs to initial action" in new WithApplication(WrappingTestController.FakeAppWithRouter) {
+      val result = route(FakeRequest(GET, WrappingTestController.authRoute.path)
+        .withHeaders("auth" -> "secret"))
+      result.map(contentAsString) must beSome("foo")
     }
 
   }

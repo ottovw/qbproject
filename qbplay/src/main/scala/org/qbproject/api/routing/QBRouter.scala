@@ -12,14 +12,14 @@ trait QBRouter extends QBBaseRouter with QBRouteWrapping
 
 object QBRouter {
   def apply(_routes: List[QBRoute]): QBRouter = new QBRouter {
-    override val qbRoutes: List[QBRoute] = _routes
+    val qbRoutes: List[QBRoute] = _routes
   }
   def apply(routes: QBRoute*): QBRouter = apply(routes.toList)
 }
 
 trait QBBaseRouter extends Router.Routes {
 
-  def qbRoutes: List[QBRoute] = Nil
+  def qbRoutes: List[QBRoute]
 
   def routeExists(requestHeader: RequestHeader) = qbRoutes.exists(_.matches(prefix, requestHeader))
 
@@ -100,6 +100,7 @@ object QBRoutes {
     def apply(str: String): A
   }
 
+  // TODO more path params
   case object string extends PathParam[String] {
     def regexString: String = "(.*?)"
     def apply(str: String): String = str

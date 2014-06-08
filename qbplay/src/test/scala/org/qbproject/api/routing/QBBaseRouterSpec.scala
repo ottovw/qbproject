@@ -75,9 +75,9 @@ class QBBaseRouterSpec extends PlaySpecification {
     def echoBoth(int: Int, str: String) = Action { Ok(int + " " + str) }
     def twoString(str1: String, str2: String) = Action { Ok(str1 + " " + str2) }
 
-    val sayHello = GET / "sayHello" / string to echo
-    val numberRoute = GET / "echonr" / int to number
-    val bothRoute = GET / "both" / int / string to echoBoth
+    val sayHello =       GET / "sayHello" / string             to echo
+    val numberRoute =    GET / "echonr" / int                  to number
+    val bothRoute =      GET / "both" / int / string           to echoBoth
     val twoStringRoute = GET / "one" / string / "two" / string to twoString
     
     val allRoutes = List(numberRoute, sayHello, bothRoute, twoStringRoute)

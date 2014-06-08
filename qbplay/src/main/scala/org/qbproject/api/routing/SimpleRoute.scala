@@ -8,7 +8,7 @@ trait SimpleRoute extends QBRoute {
 
   def matches(prefix: String, requestHeader: RequestHeader): Boolean = {
     QBRouterUtil.cutPath(prefix, requestHeader).exists { requestPath =>
-//      println(s"[SimpelRoute] $pathPartial matches $requestPath ... ${pathPartial.pattern.matcher(requestPath).matches}")
+      println(s"[SimpelRoute] $pathPartial matches $requestPath ... ${pathPartial.pattern.matcher(requestPath).matches}")
       pathPartial.pattern.matcher(requestPath).matches &&
         method.matches(requestHeader.method)
     }
