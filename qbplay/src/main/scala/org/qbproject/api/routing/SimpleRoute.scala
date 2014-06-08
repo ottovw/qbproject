@@ -8,7 +8,7 @@ trait SimpleRoute extends QBRoute {
 
   def matches(prefix: String, requestHeader: RequestHeader): Boolean = {
     QBRouterUtil.cutPath(prefix, requestHeader).exists { requestPath =>
-      println(s"MATCH: $pathPartial with $requestPath ... ${pathPartial.pattern.matcher(requestPath).matches}")
+//      println(s"[SimpelRoute] $pathPartial matches $requestPath ... ${pathPartial.pattern.matcher(requestPath).matches}")
       pathPartial.pattern.matcher(requestPath).matches &&
         method.matches(requestHeader.method)
     }
@@ -24,8 +24,7 @@ class Method(name: String) {
 
 case class SimpleRoute0(method: Method, path: String, handler: () => Handler) extends SimpleRoute {
   val pathPartial = path.r
-  def getHandler(namespace: String, requestHeader: RequestHeader): Option[Handler] =
-    if (matches(namespace, requestHeader)) Some(handler()) else None
+  def getHandler(namespace: String, requestHeader: RequestHeader): Option[Handler] = Some(handler())
   def copy(path: String = path): SimpleRoute0 = {
     new SimpleRoute0(method, path, handler)
   }

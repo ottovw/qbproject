@@ -5,6 +5,7 @@ import scala.runtime.AbstractPartialFunction
 import play.api.mvc.RequestHeader
 import play.api.mvc.Handler
 import play.api.mvc.Action
+import scala.collection.mutable.ListBuffer
 
 // TODO: Composite router
 trait QBRouter extends QBBaseRouter with QBRouteWrapping
@@ -64,6 +65,13 @@ object QBRoutes {
   }
   case object VoidCollector extends RouteCollector {
     def addAndReturn[R <: QBRoute](route: R): R = route
+  }
+  case class QBRouteCollector(routes: ListBuffer[QBRoute] = ListBuffer()) extends RouteCollector {
+    def addAndReturn[R <: QBRoute](route: R): R = {
+      routes.append(route)
+      route
+    }
+    def toRouter: QBRouter = QBRouter(routes:_*)
   }
 
   class Builder0(method: Method, var path: String, collector: RouteCollector = VoidCollector) {

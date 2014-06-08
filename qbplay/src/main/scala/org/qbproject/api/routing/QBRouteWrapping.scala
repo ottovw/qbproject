@@ -19,11 +19,11 @@ trait QBRouteWrapping {
 
   def wrapHandler[A](route: QBRoute, handler: Handler): Option[Handler] = handler match {
     case action: Action[A] =>
-      val ws = wrappers.keys
-        .find(_.map(route => route.path).contains(route.path))
-        .flatMap(wrappers.get)
-        .getOrElse(List.empty)
-      Some(ws.foldLeft(action.asInstanceOf[Handler])((act, wrapper) => wrapper(act)))
+      val activeWrappers = wrappers.collectFirst {
+        case (wrapRoutes, wrapHandler) if (wrapRoutes.exists(_.path == route.path)) =>
+          wrapHandler
+      }.getOrElse(List.empty)
+      Some(activeWrappers.foldLeft(action.asInstanceOf[Handler])((act, wrapper) => wrapper(act)))
     case _ => None
   }
 

@@ -26,10 +26,7 @@ class QBBaseRouterSpec extends PlaySpecification {
     val foobar = GET / "foo" / "bar" to foo
     val foobar2 = GET / "bar/foo" to bar
 
-    val nsRoute = namespace("ns", fooRoute)
-    val nsRoute2 = namespace("ns2", nsRoute)
-
-    val allRoutes = List(rootRoute, fooRoute, barRoute, nsRoute, nsRoute2, foobar, foobar2)
+    val allRoutes = List(rootRoute, fooRoute, barRoute, foobar, foobar2)
 
     val FakeAppWithRouter = new FakeApplication {
       override lazy val routes: Option[Router.Routes] =
@@ -70,20 +67,6 @@ class QBBaseRouterSpec extends PlaySpecification {
     }
   }
   
-  "QBBaseRouter with Namespaces" should {
-  
-    "resolve a simple route with namespace" in new WithApplication(TestController.FakeAppWithRouter) {
-      val result = route(FakeRequest(GET, "/ns/foo"))
-      result.map(contentAsString) must beSome("foo")
-    }
-
-    "resolve a simple route with two namespaces" in new WithApplication(TestController.FakeAppWithRouter) {
-      val result = route(FakeRequest(GET, "/ns2/ns/foo"))
-      result.map(contentAsString) must beSome("foo")
-    }
-
-  }
-
   object DynamicTestController extends Controller {
 
     // Actions
