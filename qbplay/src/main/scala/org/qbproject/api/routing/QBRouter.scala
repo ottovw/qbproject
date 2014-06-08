@@ -43,6 +43,6 @@ trait QBBaseRouter extends Router.Routes {
     def isDefinedAt(requestHeader: RequestHeader) = routeExists(requestHeader)
   }
 
-  def documentation = Seq(("", "", ""))
+  lazy val documentation = qbRoutes.map(_.documentation)
 
 }

@@ -139,7 +139,7 @@ class QBBaseRouterExtensionsSpec extends PlaySpecification {
       result.map(contentAsString) must beSome("foo")
     }
 
-    "loose wrapper when using namespace (copying)" in new WithApplication(WrappingTestController.FakeAppWithRouter) {
+    "not lose wrapper when using namespace (copying)" in new WithApplication(WrappingTestController.FakeAppWithRouter) {
       val result = route(FakeRequest(GET, "/ns/foo"))
       result.map(contentAsString) must beSome("foo")
       result.flatMap(header("foo", _)) must beSome("bar")
