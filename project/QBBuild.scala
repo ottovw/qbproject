@@ -63,6 +63,7 @@ object QBBuild extends Build {
       retrieveManaged := true,
       libraryDependencies ++= Seq(
         "com.typesafe.play" %% "play"                % "2.2.3",
+        "com.typesafe.play" %% "play-test"                % "2.2.3",
         "com.mandubian"     %% "play-json-zipper"    % "1.1",
         "com.github.axel22" %% "scalameter"          % "0.4",
         "org.reactivemongo" %% "play2-reactivemongo" % "0.10.2",
