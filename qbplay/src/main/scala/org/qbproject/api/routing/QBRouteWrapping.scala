@@ -28,13 +28,6 @@ object QBRouteWrapping {
 
 class QBWrappedRoute(wrappedRoute: QBRoute, wrappers: (Handler => Handler)*) extends QBRoute {
 
-  /** Delegates */
-  def path: String = wrappedRoute.path
-
-  def copy(path: String = path): QBRoute = new QBWrappedRoute(wrappedRoute.copy(path), wrappers: _*)
-
-  def matches(namespace: String, requestHeader: RequestHeader): Boolean = wrappedRoute.matches(namespace, requestHeader)
-
   def getHandler(namespace: String, requestHeader: RequestHeader): Option[Handler] = {
     wrappedRoute.getHandler(namespace, requestHeader) match {
       case Some(action: Action[_]) =>
@@ -42,5 +35,11 @@ class QBWrappedRoute(wrappedRoute: QBRoute, wrappers: (Handler => Handler)*) ext
       case _ => None
     }
   }
+
+  /** Delegates */
+  def path: String = wrappedRoute.path
+  def copy(path: String = path): QBRoute = new QBWrappedRoute(wrappedRoute.copy(path), wrappers: _*)
+  def matches(namespace: String, requestHeader: RequestHeader): Boolean = wrappedRoute.matches(namespace, requestHeader)
+  override def documentation = wrappedRoute.documentation
 
 }

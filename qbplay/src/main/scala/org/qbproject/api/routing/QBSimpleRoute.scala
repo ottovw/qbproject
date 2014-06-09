@@ -17,6 +17,8 @@ trait QBSimpleRoute extends QBRoute {
   def path = pathMatcher.toString
   def pathMatcher: PathMatcher
   def methodMatcher: MethodMatcher
+  
+  override def documentation = (methodMatcher.toString, pathMatcher.toString, "# dynamic QB Router #")
 }
 
 class MethodMatcher(name: String) {
