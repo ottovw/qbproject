@@ -6,6 +6,7 @@
 .cache/
 .history/
 .lib/
+.target/
 dist/*
 target/
 .target/
