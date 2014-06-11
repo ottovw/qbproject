@@ -16,10 +16,10 @@ trait QBCrudController extends QBAPIController { self =>
   def updateSchema = collection.schema
 
   // Routes --
-  def getAllRoute = GET / "" to getAll
-  def getByIdRoute = GET / "get" / string to getById _
-  def createRoute = POST / "create" to create
-  def updateRoute = GET / "update" / string to update _
+  def getAllRoute =  GET    / ?             to getAll
+  def getByIdRoute = GET    /  string       to getById
+  def createRoute =  POST   / ?             to create
+  def updateRoute =  POST   /  string       to update 
 
   def crudRoutes: List[QBRoute] = List(
     getAllRoute,

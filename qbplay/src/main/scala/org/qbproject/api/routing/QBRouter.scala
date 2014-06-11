@@ -43,6 +43,9 @@ trait QBBaseRouter extends Router.Routes {
     def isDefinedAt(requestHeader: RequestHeader) = routeExists(requestHeader)
   }
 
-  lazy val documentation = qbRoutes.map(_.documentation)
+  lazy val documentation = qbRoutes.map(route => {
+	  val docs = route.documentation
+	  (docs._1, prefix+docs._2, docs._3)
+  })
 
 }
