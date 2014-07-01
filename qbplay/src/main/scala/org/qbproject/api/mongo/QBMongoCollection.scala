@@ -13,7 +13,6 @@ import scala.concurrent.Future
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
 import play.modules.reactivemongo.json.ImplicitBSONHandlers._
-import org.qbproject.api.persistence.QBCollection
 
 
 class QBMongoCollection(collectionName: String)(db: DB) {

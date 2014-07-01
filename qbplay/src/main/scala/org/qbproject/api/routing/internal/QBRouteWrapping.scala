@@ -1,10 +1,11 @@
-package org.qbproject.api.routing
+package org.qbproject.api.routing.internal
 
 import play.api.mvc.Handler
 import play.api.mvc.RequestHeader
 import play.api.mvc.Action
+import org.qbproject.api.routing.QBRoute
 
-object QBRouteWrapping {
+trait QBRouteWrapping {
 
   // TODO can we solve this in a nicer way?
   protected def actionHandlerCast(fn: Action[_] => Action[_]): Handler => Handler = fn.asInstanceOf[Handler => Handler]

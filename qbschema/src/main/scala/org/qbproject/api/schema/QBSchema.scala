@@ -17,9 +17,6 @@ object QBSchema
   with JSONSchemaAnnotationWrites
   with JsTypeMapperOps
 
-case class QBJson(json: JsObject, schema: QBClass)
-
-
 trait QBValidator extends JsDefaultValueProcessor with JsValidationVisitor {
   def validateJsValue(schema: QBType)(input: JsValue): JsResult[JsValue] =
     process(schema, QBPath(), input)
@@ -28,12 +25,13 @@ trait QBValidator extends JsDefaultValueProcessor with JsValidationVisitor {
     process(schema, QBPath(), input).asInstanceOf[JsResult[JsObject]]
 }
 
-
 trait PartialValidator { self: QBValidator =>
   override def ignoreMissingFields = true
 }
 
 object QBValidator extends QBValidator
 object QBPartialValidator extends QBValidator with PartialValidator
+
+case class QBJson(json: JsObject, schema: QBClass)
 
 case class QBTypeMapper[A <: QBType : ClassTag]() extends JsTypeMapper[A]

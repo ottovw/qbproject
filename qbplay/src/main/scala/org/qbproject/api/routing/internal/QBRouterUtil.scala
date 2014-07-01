@@ -1,7 +1,8 @@
-package org.qbproject.api.routing
+package org.qbproject.api.routing.internal
 
 import play.api.mvc.RequestHeader
 import scala.collection.mutable.ListBuffer
+import org.qbproject.api.routing._
 
 object QBRouterUtil {
 
@@ -41,7 +42,7 @@ object QBRouterUtil {
         }
       })
   }
-
+  
   trait RouteCollector {
     def addAndReturn[R <: QBRoute](route: R): R
   }

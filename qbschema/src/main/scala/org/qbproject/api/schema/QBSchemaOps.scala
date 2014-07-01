@@ -11,7 +11,6 @@ class QBSchemaOps extends QBBaseSchemaOps {
    * 	Schema Ops Extensions
    * ----------------------------------------------------------
    */
-  // TODO: think about how to preserve types without explicit casting
   implicit class QBSchemaOps(schema: QBClass) {
 
     def follow[A <: QBType](path: QBStringPath): A = resolvePath[A](schema)(path)

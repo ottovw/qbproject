@@ -1,8 +1,9 @@
-package org.qbproject.api.routing
+package org.qbproject.routing.internal
 
 import org.specs2.mutable._
 import org.qbproject.api.routing._
 import play.api.mvc._
+import org.qbproject.api.routing.internal.QBRouterUtil
 
 class QBRouterUtilSpec extends Specification {
 

@@ -1,9 +1,7 @@
-package org.qbproject.api.routing
+package org.qbproject.routing
 
 import org.specs2.mutable._
-import org.qbproject.api.routing.QBRouterDSL.{ GET => qbGET, POST => qbPOST, _ }
-import org.qbproject.api.routing.QBRouteWrapping._
-import org.qbproject.api.routing.QBRouterUtil.QBRouteCollector
+import org.qbproject.api.routing.{ GET => qbGET, POST => qbPOST, _ }
 import play.core.Router
 import play.api.mvc._
 import play.api.test.WithApplication
@@ -120,6 +118,20 @@ class QBBaseRouterSpec extends PlaySpecification {
       val result = route(FakeRequest(GET, "/one/hallo/two/welt"))
       result.map(contentAsString) must beSome("hallo welt")
     }
+  }
+
+  "QBBaseRouter with HasRouteCollector" should {
+
+    "collect all routes" in {
+      object TestRouter extends Controller with QBRouter with HasRouteCollector {
+        def testAction = Action { Ok("") }
+        GET / "foo" to testAction
+        POST / "bar" to testAction
+      }
+      
+      TestRouter.qbRoutes.size must beEqualTo(2)
+    }
+
   }
 
 }

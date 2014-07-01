@@ -1,8 +1,7 @@
-package org.qbproject.api.routing
+package org.qbproject.api.routing.internal
 
 import play.api.mvc.{ RequestHeader, Handler }
-import scala.util.matching.Regex
-import org.qbproject.api.routing.QBRouterDSL._
+import org.qbproject.api.routing.QBRoute
 
 trait QBSimpleRoute extends QBRoute {
 
@@ -17,7 +16,7 @@ trait QBSimpleRoute extends QBRoute {
   def path = pathMatcher.toString
   def pathMatcher: PathMatcher
   def methodMatcher: MethodMatcher
-  
+
   override def documentation = (methodMatcher.toString, pathMatcher.toString, "# dynamic QB Router #")
 }
 
@@ -48,6 +47,16 @@ case object StringParam extends PathParam[String] {
 case object IntParam extends PathParam[Int] {
   def regexString: String = "([0-9]+)"
   def apply(str: String): Int = str.toInt
+}
+
+case object LongParam extends PathParam[Long] {
+  def regexString: String = "([0-9]+)"
+  def apply(str: String): Long = str.toLong
+}
+
+case object DoubleParam extends PathParam[Double] {
+  def regexString: String = "([0-9]+.?[0-9]+)"
+  def apply(str: String): Double = str.toDouble
 }
 
 case class SimpleRoute0(methodMatcher: MethodMatcher, pathMatcher: PathMatcher, handler: () => Handler) extends QBSimpleRoute {
@@ -90,5 +99,17 @@ case class SimpleRoute3[A, B, C](methodMatcher: MethodMatcher, pathMatcher: Path
 
   def copy(path: String = path): SimpleRoute3[A, B, C] = {
     new SimpleRoute3(methodMatcher, pathMatcher.withNewPath(path), pm1, pm2, pm3, handler)
+  }
+}
+
+case class SimpleRoute4[A, B, C, D](methodMatcher: MethodMatcher, pathMatcher: PathMatcher, pm1: PathParam[A], pm2: PathParam[B], pm3: PathParam[C], pm4: PathParam[D], handler: (A, B, C, D) => Handler) extends QBSimpleRoute {
+  def getHandler(namespace: String, requestHeader: RequestHeader): Option[Handler] =
+    QBRouterUtil.cutPath(namespace, requestHeader).flatMap {
+      case pathMatcher(p1, p2, p3, p4) => Some(handler(pm1(p1), pm2(p2), pm3(p3), pm4(p4)))
+      case _ => None
+    }
+
+  def copy(path: String = path): SimpleRoute4[A, B, C, D] = {
+    new SimpleRoute4(methodMatcher, pathMatcher.withNewPath(path), pm1, pm2, pm3, pm4, handler)
   }
 }

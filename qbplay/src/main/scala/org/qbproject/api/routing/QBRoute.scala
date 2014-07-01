@@ -3,9 +3,7 @@ package org.qbproject.api.routing
 import play.api.mvc.{ RequestHeader, Handler }
 
 /**
- *
- *
- * TODO: Provide nicer DSL for QBRoute
+ * Super interface for all routes.
  */
 trait QBRoute {
 
@@ -14,6 +12,10 @@ trait QBRoute {
    */
   def path: String
 
+  /**
+   * Allows to copy the route and modify the path.
+   * @param path new path
+   */
   def copy(path: String = path): QBRoute
 
   /**
@@ -38,6 +40,10 @@ trait QBRoute {
    */
   def getHandler(namespace: String, requestHeader: RequestHeader): Option[Handler]
 
+  /**
+   * Returns the documentation for Play's routing page and other uses.
+   * Format is `GET   /path    comment/controller
+   */
   def documentation: (String, String, String) = ("", path, "")
 
 }
